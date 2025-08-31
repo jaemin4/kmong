@@ -18,11 +18,11 @@ public class RequestFlowLogger {
     private static final ThreadLocal<Deque<String>> callStack = ThreadLocal.withInitial(LinkedList::new);
     private static final ThreadLocal<String> requestUUID = ThreadLocal.withInitial(() -> UUID.randomUUID().toString().substring(0, 8));
 
-    @Around("execution(* com.example.bobivet.interfaces.api..*Controller.*(..)) || " +
-            "execution(* com.example.bobivet.application..*Facade.*(..)) || " +
-            "execution(* com.example.bobivet.domain..*Service.*(..)) || " +
-            "execution(* com.example.bobivet.domain..*Repository.*(..)) || " +
-            "execution(* com.example.bobivet.domain..*RepositoryImpl.*(..))")
+    @Around("execution(* com.kmong.interfaces.api..*Controller.*(..)) || " +
+            "execution(* com.kmong.application..*Facade.*(..)) || " +
+            "execution(* com.kmong.domain..*Service.*(..)) || " +
+            "execution(* com.kmong.domain..*Repository.*(..)) || " +
+            "execution(* com.kmong.domain..*RepositoryImpl.*(..))")
     public Object logFlow(ProceedingJoinPoint joinPoint) throws Throwable {
         Boolean exceptionThrown = false;
 

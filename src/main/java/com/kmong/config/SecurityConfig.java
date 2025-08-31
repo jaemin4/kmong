@@ -1,10 +1,10 @@
 package com.kmong.config;
 
-import java.util.List;
 import com.kmong.domain.user.UserRepository;
-import com.kmong.filter.AccessLogFilter;
+import com.kmong.filter.JWTFilter;
 import com.kmong.filter.LoginFilter;
 import com.kmong.support.properties.SecurityProperties;
+import com.kmong.support.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,6 +23,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final JWTUtil jwtUtil;
     private final SecurityProperties securityProperties;
     private final RabbitTemplate rabbitTemplate;
     private final UserRepository userRepository;
@@ -55,17 +58,17 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(securityProperties.getWhitelist().toArray(new String[0])).permitAll()
-                        .requestMatchers("/admin/**").hasAnyRole("HEADER","ADMIN")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN")
                         .anyRequest().authenticated()
                 );
 
         LoginFilter loginFilter = new LoginFilter(
                 authenticationManager(authenticationConfiguration),
-                userRepository
+                jwtUtil
         );
         loginFilter.setFilterProcessesUrl("/auth/login");
 
-        http.addFilterBefore(new AccessLogFilter(rabbitTemplate),
+        http.addFilterBefore(new JWTFilter(jwtUtil, rabbitTemplate, userRepository),
                 UsernamePasswordAuthenticationFilter.class);
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -49,6 +49,9 @@ spring:
       mail.smtp.ssl.enable: true
       mail.smtp.ssl.trust: smtp.naver.com
 
+  jwt:
+    secret: ${SPRING_JWT_SECRET:rP0fZ2l6K9e!xUwG3rH8vB2qL1sC5yN7}
+
 #loggin level
 logging:
   level:

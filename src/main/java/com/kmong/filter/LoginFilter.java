@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kmong.domain.user.User;
 import com.kmong.domain.user.UserRepository;
 import com.kmong.infra.user.CustomUserDetails;
+import com.kmong.support.utils.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,12 +16,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.io.IOException;
+import java.util.Map;
+
 @RequiredArgsConstructor
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
+    private final JWTUtil jwtUtil;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
@@ -53,10 +55,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = user.getRole().toString();
         String userId = user.getId().toString();
 
+        // Access Token (30일 임시)
+        String accessToken = jwtUtil.createJwt(userId, role, 1000 * 60 * 60L * 24 * 30);
+
+        // Refresh Token (28일)
+        String refreshToken = jwtUtil.createJwt(userId, role, 1000L * 60 * 60 * 24 * 7 * 4);
+
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        new ObjectMapper().writeValue(response.getWriter(), "로그인에 성공하였습니다.");
+        new ObjectMapper().writeValue(response.getWriter(), new AuthResponse(accessToken, refreshToken));
     }
 
     @Override

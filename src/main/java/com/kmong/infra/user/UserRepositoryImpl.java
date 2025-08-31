@@ -22,5 +22,14 @@ public class UserRepositoryImpl implements UserRepository {
         return userJpaRepository.findByEmail(email);
     }
 
+    @Override
+    public Optional<User> findByPhoneNumber(String phoneNumber) {
+        return userJpaRepository.findByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return userJpaRepository.findById(id);
+    }
 
 }
