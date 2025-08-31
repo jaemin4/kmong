@@ -39,9 +39,6 @@ spring:
         hbm2ddl:
           auto: update
 
-  jwt:
-    secret: ${SPRING_JWT_SECRET:rP0fZ2l6K9e!xUwG3rH8vB2qL1sC5yN7}
-
   mail:
     host: smtp.naver.com
     port: 465
