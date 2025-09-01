@@ -1,4 +1,4 @@
-package com.kmong.service;
+package com.kmong.domain.auth;
 
 import org.json.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;

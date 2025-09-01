@@ -1,0 +1,101 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: kmong
+  web:
+    resources:
+      add-mappings: false
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://my8003.gabiadb.com:3306/jmdb?useUnicode=true&characterEncoding=utf-8&characterSetResults=utf-8&serverTimezone=Asia/Seoul}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:jmhost}
+    password: ${SPRING_DATASOURCE_PASSWORD:jmhost1313}
+    hikari:
+      max-lifetime: 300000  # 5?
+      idle-timeout: 6000000   # 100?
+      validation-timeout: 5000
+      maximum-pool-size: 4
+      connection-test-query: 'select 1'
+      connection-timeout: 100000
+      minimum-idle: 5
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        hbm2ddl:
+          auto: update
+
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: eheh8734@naver.com
+    password: 4WW9UYL36H93
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.ssl.enable: true
+      mail.smtp.ssl.trust: smtp.naver.com
+
+  jwt:
+    secret: ${SPRING_JWT_SECRET:rP0fZ2l6K9e!xUwG3rH8vB2qL1sC5yN7}
+
+#loggin level
+logging:
+  level:
+    # Hibernate SQL ?? ??
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    org.hibernate.type: OFF
+
+    # Spring framework ??
+    org.springframework.web: INFO        # DEBUG ? INFO (??? web ?? debug ?? ??)
+    org.springframework.security: INFO   # DEBUG ? INFO (?? ??? ?? ?? ??)
+
+    # RestTemplate ??? ?? ??
+    org.springframework.web.client.RestTemplate: INFO
+
+    # ?????? ??
+    com.bovivet: DEBUG                    # ?? ?? DEBUG ??
+    com.bovivet.security: DEBUG
+    com.bovivet.controller: DEBUG
+    com.bovivet.service: DEBUG
+    com.bovivet.repository: DEBUG
+
+    # AOP ??? INFO (??? ??? ?? ??)
+    com.example.bobivet.aop.log: INFO
+
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.example.bobivet
+
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+
+sms:
+  cool:
+    key: NCSCPHLPUZAIKJML
+    secret: WFLXSU5YXY4KOFKZAOTCH0EDAWJBYGDW
+    number: 01046887175
+
+security:
+  whitelist:
+    - /auth/**
+    - /swagger-ui/**
+    - /v3/api-docs/**
+    - /error
+    - /user/**
