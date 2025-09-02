@@ -14,6 +14,7 @@ public class OrderService {
     @Transactional
     public void registerOrderMain(OrderCommand.RegisterOrderMain command) {
         OrderMain entity = OrderMain.of(
+                command.getProductOrderId(),
                 command.getOrderDate(),
                 command.getOrderNumber(),
                 command.getOrdererName(),
@@ -44,5 +45,11 @@ public class OrderService {
 
         orderDetailRepository.save(entity);
     }
+
+    public boolean existsMainByProductOrderId(String productOrderId) {
+        return orderMainRepository.existsByProductOrderId(productOrderId);
+    }
+
+
 
 }

@@ -13,8 +13,8 @@ import lombok.*;
 public class OrderMain extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(length = 60)
+    private String productOrderId;
 
     /** 메인 UI 컬럼 */
     @Column(nullable = false, length = 30)
@@ -55,6 +55,7 @@ public class OrderMain extends BaseTimeEntity {
 
     /** 정적 팩토리 */
     public static OrderMain of(
+            String productOrderId,
             String orderDate,
             String orderNumber,
             String ordererName,
@@ -69,6 +70,7 @@ public class OrderMain extends BaseTimeEntity {
             String issueStatus
     ) {
         return OrderMain.builder()
+                .productOrderId(productOrderId)
                 .orderDate(orderDate)
                 .orderNumber(orderNumber)
                 .ordererName(ordererName)

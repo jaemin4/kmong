@@ -15,4 +15,9 @@ public class OrderMainRepositoryImpl implements OrderMainRepository {
     public OrderMain save(OrderMain orderDetail) {
         return orderMainJpaRepository.save(orderDetail);
     }
+
+    @Override
+    public boolean existsByProductOrderId(String productOrderId) {
+        return orderMainJpaRepository.existsByProductOrderId(productOrderId);
+    }
 }

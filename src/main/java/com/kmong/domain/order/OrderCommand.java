@@ -8,6 +8,7 @@ public class OrderCommand {
     @Getter
     @AllArgsConstructor(staticName = "of")
     public static class RegisterOrderMain{
+        private final String productOrderId;
         private final String orderDate;       // 주문일
         private final String orderNumber;     // 주문번호
         private final String ordererName;     // 주문자명
