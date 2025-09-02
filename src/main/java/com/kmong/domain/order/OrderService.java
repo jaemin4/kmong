@@ -1,5 +1,8 @@
 package com.kmong.domain.order;
 
+import com.kmong.aop.log.AfterCommitLogger;
+import com.kmong.aop.log.RequestFlowLogger;
+import com.kmong.support.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +32,11 @@ public class OrderService {
                 command.getIssueStatus()
         );
 
-        orderMainRepository.save(entity);
+        OrderMain saved = orderMainRepository.save(entity);
+
+        AfterCommitLogger.logInfoAfterCommit(() ->
+                String.format("[%s] saved OrderMain: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(saved))
+        );
     }
     @Transactional
     public void registerOrderDetail(OrderCommand.RegisterOrderDetail command){
@@ -43,7 +50,11 @@ public class OrderService {
                 command.getDataUsage()
         );
 
-        orderDetailRepository.save(entity);
+        OrderDetail saved = orderDetailRepository.save(entity);
+
+        AfterCommitLogger.logInfoAfterCommit(() ->
+                String.format("[%s] saved OrderDetail: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(saved))
+        );
     }
 
     public boolean existsMainByProductOrderId(String productOrderId) {

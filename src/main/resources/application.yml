@@ -52,6 +52,11 @@ spring:
   jwt:
     secret: ${SPRING_JWT_SECRET:rP0fZ2l6K9e!xUwG3rH8vB2qL1sC5yN7}
 
+  naver:
+    api:
+      client-id: 75Z8MUbYcw3vpvbV0F9Ux4
+      client-secret: $2a$04$7WLDVDCaxCC3Vt609oHN.O
+
 #loggin level
 logging:
   level:

@@ -20,7 +20,7 @@ public class OrderMain extends BaseTimeEntity {
     @Column(nullable = false, length = 30)
     private String orderDate;        // 주문일
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, length = 50)
     private String orderNumber;      // 주문번호
 
     @Column(nullable = false, length = 50)
