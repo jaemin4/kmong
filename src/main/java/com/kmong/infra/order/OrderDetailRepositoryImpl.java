@@ -9,10 +9,11 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class OrderDetailRepositoryImpl implements OrderDetailRepository {
 
-    private final OrderJpaRepository orderJpaRepository;
+    private final OrderDetailJpaRepository orderDetailJpaRepository;
 
     @Override
     public OrderDetail save(OrderDetail orderDetail) {
-        return orderJpaRepository.save(orderDetail);
+        return orderDetailJpaRepository.save(orderDetail);
     }
+
 }
