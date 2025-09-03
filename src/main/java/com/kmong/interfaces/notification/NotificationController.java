@@ -35,7 +35,7 @@ public class NotificationController {
         return APIResponse.message("알림톡 내용이 등록되었습니다.");
     }
 
-    @PostMapping("/register")
+    @PostMapping("/update")
     @Operation(summary = "알림톡 내용 수정")
     public APIResponse<Void> updateNotification(@RequestBody NotificationRequest.Update request) {
 
