@@ -43,10 +43,12 @@ public class NaverApiScheduler {
         log.info("check access : {}",accessToken);
     }
 
-    @Scheduled(cron = "0 * * * * *") // 1분마다 실행 (운영 시 "0 */3 * * * *")
+    //@Scheduled(cron = "0 * * * * *")
+    // 1분마다 실행 (운영 시 "0 */3 * * * *")
+    @Scheduled(cron = "0 */3 * * * *")
     public void orderSaveSchedule() {
         ZonedDateTime fromTime = lastFetchedTime;
-        ZonedDateTime toTime = fromTime.plusDays(1); // 테스트: 1일 단위 (운영: plusMinutes(3))
+        ZonedDateTime toTime = fromTime.plusMinutes(3); // 테스트: 1일 단위 (운영: plusMinutes(3))
 
         String from = NAVER_FMT.format(fromTime);
         String to = NAVER_FMT.format(toTime);

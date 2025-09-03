@@ -15,4 +15,15 @@ public class NotificationRequest {
         private String keyStringRange;
     }
 
+    @Getter
+    @AllArgsConstructor(staticName = "of")
+    public static class Update{
+        private Long notificationId;
+        private String kakaoAccessToken;
+        private String subject;
+        private String content;
+        private String keyString;
+        private String keyStringRange;
+    }
+
 }
