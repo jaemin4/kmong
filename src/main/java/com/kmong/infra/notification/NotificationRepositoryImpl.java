@@ -27,4 +27,9 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     public Long count() {
         return notificationJpaRepository.count();
     }
+
+    @Override
+    public Optional<Notification> findByeKey(Integer eKey) {
+        return notificationJpaRepository.findByeKey(eKey);
+    }
 }

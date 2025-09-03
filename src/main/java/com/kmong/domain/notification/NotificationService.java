@@ -41,7 +41,7 @@ public class NotificationService {
     @Transactional
     public void update(NotificationCommand.Update command){
 
-        Notification notification = notificationRepository.findById(command.getNotificationId()).orElseThrow(() ->
+        Notification notification = notificationRepository.findByeKey(1).orElseThrow(() ->
                 new RuntimeException("존재하지 않는 ID 입니다."));
 
         notification.update(
@@ -57,6 +57,13 @@ public class NotificationService {
         AfterCommitLogger.logInfoAfterCommit(() ->
                 String.format("[%s] updated Notification: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(saved))
         );
+    }
+
+    public NotificationResult.Get get(){
+        Notification notification = notificationRepository.findByeKey(1).orElseThrow(() ->
+                new RuntimeException("데이터가 존재하지 않습니다."));
+
+        return NotificationResult.Get.of(notification);
     }
 
 

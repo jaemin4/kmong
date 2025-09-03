@@ -31,6 +31,9 @@ public class Notification extends BaseTimeEntity {
     @Lob
     private String keyStringRange;
 
+    @Column(unique = true)
+    private Integer eKey;
+
     public static Notification of(String kakaoAccessToken, String subject, String content, String keyString, String keyStringRange) {
         return Notification.builder()
                 .kakaoAccessToken(kakaoAccessToken)
@@ -38,6 +41,7 @@ public class Notification extends BaseTimeEntity {
                 .content(content)
                 .keyString(keyString)
                 .keyStringRange(keyStringRange)
+                .eKey(1)
                 .build();
     }
 
