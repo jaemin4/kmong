@@ -106,8 +106,11 @@ public class NaverApiScheduler {
 
             // 회사측 API 호출(동기) 성공 or 실패 여부 DB 저장
             // 카카오톡 발송 API(비동기) OutBox
-            // 이메일 발송 API(비동기) OUTBOX
+            // 이메일 발송 API(비동기) OutBOX
             // 네이버 스마트 스토어 주문 발송 처리 OutBox
+
+
+
 
         }
         return new UpsertResult(total, saved, skipped);
