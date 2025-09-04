@@ -5,6 +5,8 @@ import com.kmong.domain.outbox.OrderOutboxRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class OrderOutBoxRepositoryImpl implements OrderOutboxRepository {
@@ -14,5 +16,10 @@ public class OrderOutBoxRepositoryImpl implements OrderOutboxRepository {
     @Override
     public OrderOutbox save(OrderOutbox orderOutbox) {
         return orderOutboxJpaRepository.save(orderOutbox);
+    }
+
+    @Override
+    public Optional<OrderOutbox> findByProductOrderId(String productOrderId) {
+        return orderOutboxJpaRepository.findByProductOrderId(productOrderId);
     }
 }
