@@ -61,6 +61,13 @@ spring:
       client-id: 75Z8MUbYcw3vpvbV0F9Ux4
       client-secret: $2a$04$7WLDVDCaxCC3Vt609oHN.O
 
+  aligo:
+    sender-key: 2f2b28b0c719c76f90761a21c14493cc3700f537
+    api-key: 8hkdu1ibp8bggwe7r2bjb1mfpzax7lm9
+    user-id: usimstar
+    secret-key: adc66607219a4b913a2affd4750691ce9f48cf7821ee4579c37f362c095c523422b220d281483deba2804e5bcb4d20f305834675f3ee23bae9d6838eeae0f726l7p47l5t/LPXc1gLs9E3XMQJ023xSJ+yJOxDIk92+YmcveOXGFSrJpkzudse2yB8lxRrtJwhh5mdfjLYq4CjEQ==
+    phone-number: 01058526740
+
   profiles:
     active: consumer
 
@@ -92,7 +99,7 @@ logging:
 
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
-  type-aliases-package: com.example.bobivet
+  type-aliases-package: com.kmong
 
   configuration:
     map-underscore-to-camel-case: true
@@ -112,3 +119,4 @@ security:
     - /error
     - /user/**
     - /notification/**
+    - /order/**

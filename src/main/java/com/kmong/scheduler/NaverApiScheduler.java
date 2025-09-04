@@ -125,6 +125,13 @@ public class NaverApiScheduler {
 
             // 이메일 처리
             String email = extractEmail(row);
+
+            Notification notification = notificationService.get().getNotification();
+            String subject = notification.getSubject();
+            String template = notification.getContent();
+            String keyString = notification.getKeyString();
+            String body = renderByKeys(template, keyString, row);
+
             if (!"breakNull".equals(email)) {
                 outBoxService.registerOrderOutBox(OutboxCommand.RegisterOrderOutbox.of(
                         productOrderId,
@@ -135,12 +142,6 @@ public class NaverApiScheduler {
                         phoneNumber
                 ));
 
-                Notification notification = notificationService.get().getNotification();
-                String subject = notification.getSubject();
-                String template = notification.getContent();
-                String keyString = notification.getKeyString();
-                String body = renderByKeys(template, keyString, row);
-
                 rabbitTemplate.convertAndSend(
                         RabbitmqConstants.EXCHANGE_MAIL,
                         RabbitmqConstants.ROUTING_MAIL_SEND,
@@ -149,6 +150,23 @@ public class NaverApiScheduler {
                         )
                 );
             } else {
+                outBoxService.registerOrderOutBox(OutboxCommand.RegisterOrderOutbox.of(
+                        productOrderId,
+                        "testId",
+                        SendStatus.SUCCESS,
+                        true,
+                        email,
+                        phoneNumber
+                ));
+
+                rabbitTemplate.convertAndSend(
+                        RabbitmqConstants.EXCHANGE_MAIL,
+                        RabbitmqConstants.ROUTING_MAIL_SEND,
+                        EmailConsumerCommand.Issue.of(
+                                productOrderId, email, subject, body, MailUtils.setFrom
+                        )
+                );
+
                 log.info("메일 주소 없음 → 문자 발송 예정");
             }
         }
