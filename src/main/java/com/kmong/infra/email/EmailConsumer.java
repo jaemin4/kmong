@@ -1,0 +1,51 @@
+package com.kmong.infra.email;
+
+import com.kmong.domain.outbox.OrderOutbox;
+import com.kmong.domain.outbox.OutBoxService;
+import com.kmong.domain.outbox.OutboxCommand;
+import com.kmong.domain.outbox.SendStatus;
+import com.kmong.support.constants.RabbitmqConstants;
+import com.kmong.support.utils.JsonUtils;
+import com.kmong.support.utils.MailUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.context.annotation.Profile;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Profile("consumer")
+public class EmailConsumer {
+
+    private final JavaMailSender mailSender;
+    private final OutBoxService outBoxService;
+
+    @RabbitListener(queues = RabbitmqConstants.QUEUE_MAIL_SEND, concurrency = "1")
+    public void sendMail(EmailConsumerCommand.Issue command) {
+        try{
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(command.getEmail());
+            message.setSubject(command.getSubject());
+            message.setText(command.getBody());
+            message.setFrom(MailUtils.setFrom);
+            mailSender.send(message);
+
+            log.info("Email sent to : {}", JsonUtils.toJson(message));
+            outBoxService.updateOrderOutBox(OutboxCommand.
+                    Update.of(
+                            command.getProductOrderId(),null, SendStatus.SUCCESS,null,null)
+            );
+
+        }catch (Exception e) {
+            log.error("ERROR Send Mail : {}",e.getMessage());
+            outBoxService.updateOrderOutBox(OutboxCommand.
+                    Update.of(
+                            command.getProductOrderId(),null, SendStatus.FAIL,null,null)
+            );
+        }
+    }
+}

@@ -1,6 +1,5 @@
 package com.kmong.interfaces.order;
 
-import com.kmong.domain.order.OrderCommand;
 import com.kmong.domain.order.OrderService;
 import com.kmong.support.response.APIResponse;
 import io.swagger.v3.oas.annotations.Operation;

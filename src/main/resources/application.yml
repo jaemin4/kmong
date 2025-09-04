@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: kmong
+
+
   web:
     resources:
       add-mappings: false
@@ -40,14 +42,16 @@ spring:
           auto: update
 
   mail:
-    host: smtp.naver.com
-    port: 465
-    username: eheh8734@naver.com
-    password: 4WW9UYL36H93
+    host: smtp.gmail.com
+    port: 587
+    username: jaemin46882@gmail.com
+    password: errlrubdzwodfoiw
     properties:
       mail.smtp.auth: true
-      mail.smtp.ssl.enable: true
-      mail.smtp.ssl.trust: smtp.naver.com
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+      mail.smtp.ssl.trust: smtp.gmail.com
+
 
   jwt:
     secret: ${SPRING_JWT_SECRET:rP0fZ2l6K9e!xUwG3rH8vB2qL1sC5yN7}
@@ -56,6 +60,9 @@ spring:
     api:
       client-id: 75Z8MUbYcw3vpvbV0F9Ux4
       client-secret: $2a$04$7WLDVDCaxCC3Vt609oHN.O
+
+  profiles:
+    active: consumer
 
 #loggin level
 logging:
@@ -104,3 +111,4 @@ security:
     - /v3/api-docs/**
     - /error
     - /user/**
+    - /notification/**
