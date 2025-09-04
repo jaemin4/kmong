@@ -47,11 +47,11 @@ spring:
     username: jaemin46882@gmail.com
     password: errlrubdzwodfoiw
     properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
-      mail.smtp.starttls.required: true
-      mail.smtp.ssl.trust: smtp.gmail.com
-
+      mail:
+        smtp:
+          auth: true            # 사용자 인증 시도 여부
+          starttls:
+            enable: true        # starttls 활성화 여부
 
   jwt:
     secret: ${SPRING_JWT_SECRET:rP0fZ2l6K9e!xUwG3rH8vB2qL1sC5yN7}

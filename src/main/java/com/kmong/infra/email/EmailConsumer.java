@@ -27,6 +27,7 @@ public class EmailConsumer {
     @RabbitListener(queues = RabbitmqConstants.QUEUE_MAIL_SEND, concurrency = "1")
     public void sendMail(EmailConsumerCommand.Issue command) {
         try{
+            log.info("이메일 발송 consumer 진입");
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(command.getEmail());
             message.setSubject(command.getSubject());
@@ -35,9 +36,14 @@ public class EmailConsumer {
             mailSender.send(message);
 
             log.info("Email sent to : {}", JsonUtils.toJson(message));
+
             outBoxService.updateOrderOutBox(OutboxCommand.
                     Update.of(
-                            command.getProductOrderId(),null, SendStatus.SUCCESS,null,null)
+                            command.getProductOrderId(),
+                            null,
+                             SendStatus.SUCCESS,
+                            null,
+                            null)
             );
 
         }catch (Exception e) {
