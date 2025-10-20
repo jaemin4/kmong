@@ -1,25 +1,17 @@
 package com.kmong.scheduler;
 
-import com.kmong.domain.notification.Notification;
-import com.kmong.domain.notification.NotificationService;
 import com.kmong.domain.order.OrderCommand;
 import com.kmong.domain.order.OrderService;
 import com.kmong.domain.outbox.OutBoxService;
 import com.kmong.domain.outbox.OutboxCommand;
 import com.kmong.domain.outbox.SendStatus;
-import com.kmong.infra.email.EmailConsumerCommand;
 import com.kmong.infra.naver.NaverAPIClient;
-import com.kmong.support.constants.RabbitmqConstants;
 import com.kmong.support.utils.JsonUtils;
-import com.kmong.support.utils.MailUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,8 +30,6 @@ public class NaverApiScheduler {
 
     private final OrderService orderService;
     private final NaverAPIClient naverAPIClient;
-    private final RabbitTemplate rabbitTemplate;
-    private final NotificationService notificationService;
     private final OutBoxService outBoxService;
 
     private static final DateTimeFormatter NAVER_FMT =
@@ -59,7 +49,8 @@ public class NaverApiScheduler {
     @Scheduled(cron = "0 * * * * *")
     public void orderSaveSchedule() {
         ZonedDateTime from = lastFetchedTime;
-        ZonedDateTime to = from.plusDays(1); // 운영 시: plusMinutes(3)
+        //ZonedDateTime to = ZonedDateTime.now();
+        ZonedDateTime to = from.plusDays(1);
         log.info("[NAVER] 주문 조회 시작: {} ~ {}", from, to);
 
         executeWithRetry(from, to, LocalDateTime.of(2025, 8, 25, 0, 0, 0));
@@ -94,6 +85,10 @@ public class NaverApiScheduler {
     private void processOrders(String from, String to, LocalDateTime logicStartTime) {
         List<Map<String, Object>> orders = naverAPIClient.fetchOrders(accessToken, from, to);
         log.info("[NAVER] API 응답 {}건", orders.size());
+
+        if(orders.isEmpty()) {
+            return;
+        }
 
         // 1) orderId 기준 그룹핑
         Map<String, List<Map<String, Object>>> groupedByOrder = orders.stream()
