@@ -3,6 +3,8 @@ package com.kmong.domain.outbox;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.Map;
+
 public class OutboxCommand {
 
     @Getter
@@ -15,6 +17,7 @@ public class OutboxCommand {
         private Boolean enableEmail;
         private String email;
         private String phoneNumber;
+        private Map<String, Object> row;
 
     }
 

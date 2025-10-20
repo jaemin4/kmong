@@ -64,6 +64,8 @@ dependencies {
     implementation 'net.nurigo:sdk:4.3.0'
     implementation 'org.mindrot:jbcrypt:0.4'
 
+
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

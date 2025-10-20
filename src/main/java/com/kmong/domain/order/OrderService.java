@@ -77,4 +77,7 @@ public class OrderService {
     }
 
 
+    public boolean existsMainByOrderId(String orderId) {
+        return orderMainRepository.existsMainByOrderId(orderId);
+    }
 }
