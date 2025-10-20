@@ -1,11 +1,16 @@
 package com.kmong.domain.order;
 
+import com.github.pagehelper.PageInfo;
 import com.kmong.aop.log.AfterCommitLogger;
 import com.kmong.aop.log.RequestFlowLogger;
 import com.kmong.support.utils.JsonUtils;
+import com.kmong.support.utils.PagingUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +66,18 @@ public class OrderService {
         return orderMainRepository.existsByProductOrderId(productOrderId);
     }
 
+    public OrderResult.GetOrderMainPaging getOrderMainPaging(String keyword, Pageable pageable){
+
+        PagingUtil.getPagingCall(pageable);
+        List<OrderMain> data = orderMainRepository.findAllByKeyword(keyword);
+        PageInfo<OrderMain> pageInfo = new PageInfo<>(data);
+
+        return OrderResult.GetOrderMainPaging.of(data,PagingUtil.ofPagingCommResult(pageInfo));
+
+    }
 
 
+    public boolean existsMainByOrderId(String orderId) {
+        return orderMainRepository.existsMainByOrderId(orderId);
+    }
 }
