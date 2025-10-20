@@ -5,7 +5,6 @@ spring:
   application:
     name: kmong
 
-
   web:
     resources:
       add-mappings: false

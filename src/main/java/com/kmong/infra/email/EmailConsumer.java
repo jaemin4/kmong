@@ -1,19 +1,22 @@
 package com.kmong.infra.email;
 
-import com.kmong.domain.outbox.OrderOutbox;
 import com.kmong.domain.outbox.OutBoxService;
 import com.kmong.domain.outbox.OutboxCommand;
 import com.kmong.domain.outbox.SendStatus;
 import com.kmong.support.constants.RabbitmqConstants;
 import com.kmong.support.utils.JsonUtils;
 import com.kmong.support.utils.MailUtils;
+import com.rabbitmq.client.AMQP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 @Slf4j
 @Service
@@ -25,17 +28,21 @@ public class EmailConsumer {
     private final OutBoxService outBoxService;
 
     @RabbitListener(queues = RabbitmqConstants.QUEUE_MAIL_SEND, concurrency = "1")
-    public void sendMail(EmailConsumerCommand.Issue command) {
+    public void sendMail(
+            EmailConsumerCommand.Issue command,
+            org.springframework.amqp.core.Message message,
+            com.rabbitmq.client.Channel channel
+    ) throws IOException {
         try{
             log.info("이메일 발송 consumer 진입");
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(command.getEmail());
-            message.setSubject(command.getSubject());
-            message.setText(command.getBody());
-            message.setFrom(MailUtils.setFrom);
-            mailSender.send(message);
+            SimpleMailMessage emailMessage = new SimpleMailMessage();
+            emailMessage.setTo(command.getEmail());
+            emailMessage.setSubject(command.getSubject());
+            emailMessage.setText(command.getBody());
+            emailMessage.setFrom(MailUtils.setFrom);
+            mailSender.send(emailMessage);
 
-            log.info("Email sent to : {}", JsonUtils.toJson(message));
+            log.info("Email sent to : {}", JsonUtils.toJson(emailMessage));
 
             outBoxService.updateOrderOutBox(OutboxCommand.
                     Update.of(
@@ -45,6 +52,7 @@ public class EmailConsumer {
                             null,
                             null)
             );
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
 
         }catch (Exception e) {
             log.error("ERROR Send Mail : {}",e.getMessage());
@@ -52,6 +60,9 @@ public class EmailConsumer {
                     Update.of(
                             command.getProductOrderId(),null, SendStatus.FAIL,null,null)
             );
+
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+
         }
     }
 }

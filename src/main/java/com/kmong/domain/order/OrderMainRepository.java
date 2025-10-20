@@ -10,4 +10,6 @@ public interface OrderMainRepository {
 
     List<OrderMain> findAllByKeyword(String keyword);
 
+    boolean existsMainByOrderId(String orderId);
+
 }
