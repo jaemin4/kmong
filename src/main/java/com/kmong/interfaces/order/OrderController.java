@@ -8,15 +8,18 @@ import com.kmong.support.response.APIResponse;
 import com.kmong.support.utils.PagingUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/order")
 public class OrderController {
@@ -45,6 +48,6 @@ public class OrderController {
         return APIPagingResponse.success("주문 등록에 성공하였습니다.",data.getOrderMainList(),data.getPagingCommResult());
     }
 
-
-
 }
+
+

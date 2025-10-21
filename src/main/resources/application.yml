@@ -70,6 +70,7 @@ spring:
   esim:
     merchant-id: b000070
     token: a31f84cd66b7a898ae442b7d7799e29f
+    dept-id: 000086
     enc-str: DFC7675F88A3B4C8AFAC012B8D92FB80D61D8C9A
 
   profiles:
@@ -124,3 +125,4 @@ security:
     - /user/**
     - /notification/**
     - /order/**
+    - /api/esim/callback

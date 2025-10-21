@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "spring.esim")
 public class EsimProperties {
     private String merchantId;
+    private String deptId;
     private String token;
     private String encStr;
 }

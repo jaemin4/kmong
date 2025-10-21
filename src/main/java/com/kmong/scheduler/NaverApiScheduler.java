@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -23,6 +24,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import static com.kmong.support.utils.CommUtils.*;
 import static com.kmong.support.utils.JsonPathUtils.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Component
@@ -33,6 +40,9 @@ public class NaverApiScheduler {
     private final NaverAPIClient naverAPIClient;
     private final OutBoxService outBoxService;
     private final EsimProperties esimProperties;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final HttpHeaders httpHeaders = new HttpHeaders();
+
 
     private static final DateTimeFormatter NAVER_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
@@ -86,11 +96,18 @@ public class NaverApiScheduler {
     /** API 조회 + 주문 저장 + 알림 발송 */
     private void processOrders(String from, String to, LocalDateTime logicStartTime) {
         List<Map<String, Object>> orders = naverAPIClient.fetchOrders(accessToken, from, to);
-        log.info("[NAVER] API 응답 {}건", orders.size());
 
-        if(orders.isEmpty()) {
+        if (orders == null) {
+            log.info("[NAVER] API 응답이 null → 데이터 없음으로 간주 (토큰 재발급 불필요)");
             return;
         }
+
+        if (orders.isEmpty()) {
+            log.info("[NAVER] 주문 데이터 없음 → {} ~ {}", from, to);
+            return;
+        }
+
+        log.info("[NAVER] API 응답 {}건", orders.size());
 
         // 1) orderId 기준 그룹핑
         Map<String, List<Map<String, Object>>> groupedByOrder = orders.stream()
@@ -177,18 +194,29 @@ public class NaverApiScheduler {
 
     /** 이메일/문자 알림 처리 */
     private void processNotification(Map<String, Object> row, String productOrderId) {
-        String phone = getS(row, "content.order.ordererTel");
-        // String email = extractEmail(row);
-        String email = "eheh25877@gmail.com";
-        boolean enabledEmail = true;
+        Map<String,Object> result = callApiCompany();
+        boolean isApiRequest = (boolean) result.get("isSuccess");
 
-        if(email.equals("disableEmail")){
-            enabledEmail = false;
+        if(isApiRequest){
+
         }
 
+        String phone = getS(row, "content.order.ordererTel");
+        String email = "eheh25877@gmail.com";
+        boolean enabledEmail = !email.equals("disableEmail");
+
+        // ====== ④ Outbox 등록 ======
         outBoxService.registerOrderOutBox(OutboxCommand.RegisterOrderOutbox.of(
-                productOrderId, "testId", SendStatus.SUCCESS, enabledEmail, email, phone,row
+                productOrderId,
+                "testId",
+                isApiRequest ? SendStatus.SUCCESS : SendStatus.FAIL,
+                enabledEmail,
+                email,
+                phone,
+                row
         ));
+
+
     }
 
     /** 이메일 추출 */
@@ -230,5 +258,46 @@ public class NaverApiScheduler {
         );
     }
 
+    private Map<String, Object> callApiCompany() {
+        String apiUrl = "https://tfmshippingsys.fastmove.com.tw/Api/QuoteMg/myQueryAll";
+
+        Map<String, Object> result = new HashMap<>();
+        boolean isSuccess = false;
+
+        try {
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("merchantId", esimProperties.getMerchantId());
+            requestBody.put("encStr", esimProperties.getEncStr());
+
+            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, httpHeaders);
+
+            // API 호출
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    apiUrl, HttpMethod.POST, entity, Map.class
+            );
+
+            Map<String, Object> body = response.getBody();
+            Object productList = body != null ? body.get("prodList") : null;
+
+            if (productList == null) {
+                log.warn("[WARN] productList is null — API 요청 실패로 간주");
+            } else {
+                log.info("[INFO] API 호출 성공");
+                isSuccess = true;
+            }
+
+            result.put("body", body);
+            result.put("isSuccess", isSuccess);
+
+        } catch (Exception e) {
+            log.error("[ERROR] API 요청 중 예외 발생: {}", e.getMessage());
+            result.put("body", null);
+            result.put("isSuccess", false);
+        }
+
+        return result;
+    }
 
 }
