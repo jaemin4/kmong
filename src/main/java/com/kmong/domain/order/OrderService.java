@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -66,10 +67,13 @@ public class OrderService {
         return orderMainRepository.existsByProductOrderId(productOrderId);
     }
 
-    public OrderResult.GetOrderMainPaging getOrderMainPaging(String keyword, Pageable pageable){
+    public OrderResult.GetOrderMainPaging getOrderMainPaging(String keyword, Pageable pageable, String startDate,String endDate){
 
         PagingUtil.getPagingCall(pageable);
-        List<OrderMain> data = orderMainRepository.findAllByKeyword(keyword);
+        LocalDate start = startDate != null ? LocalDate.parse(startDate) : null;
+        LocalDate end = endDate != null ? LocalDate.parse(endDate) : null;
+
+        List<OrderMain> data = orderMainRepository.findAllByKeyword(keyword,start,end);
         PageInfo<OrderMain> pageInfo = new PageInfo<>(data);
 
         return OrderResult.GetOrderMainPaging.of(data,PagingUtil.ofPagingCommResult(pageInfo));

@@ -6,6 +6,7 @@ import com.kmong.domain.outbox.OutBoxService;
 import com.kmong.domain.outbox.OutboxCommand;
 import com.kmong.domain.outbox.SendStatus;
 import com.kmong.infra.naver.NaverAPIClient;
+import com.kmong.support.properties.EsimProperties;
 import com.kmong.support.utils.JsonUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class NaverApiScheduler {
     private final OrderService orderService;
     private final NaverAPIClient naverAPIClient;
     private final OutBoxService outBoxService;
+    private final EsimProperties esimProperties;
 
     private static final DateTimeFormatter NAVER_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
