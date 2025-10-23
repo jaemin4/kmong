@@ -6,5 +6,5 @@ public interface OrderOutboxRepository {
 
     OrderOutbox save(OrderOutbox orderOutbox);
 
-    Optional<OrderOutbox> findByProductOrderId(String productOrderId);
+    Optional<OrderOutbox> findByOrderId(String orderId);
 }

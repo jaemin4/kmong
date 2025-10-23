@@ -16,45 +16,15 @@ public class OrderDetail extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 상세내용 컬럼 */
-    @Column(length = 30)
-    private String activationDate;   // 개통일
-
-    @Column(length = 30)
-    private String expiryDate;       // 종료일
-
-    @Column(length = 100)
-    private String iddicNumber;      // IDDIC 넘버
-
-    @Column(length = 255)
-    private String smdpAddress;      // SM-DP 주소
-
-    @Column(length = 255)
-    private String activationCode;   // 활성화 코드
-
-    @Column(length = 100)
-    private String apn;              // APN 값
-
-    @Column(length = 100)
-    private String dataUsage;        // 데이터 사용량 조회
+    private String productOrderId;
+    private String orderId;
 
     public static OrderDetail of(
-            String activationDate,
-            String expiryDate,
-            String iddicNumber,
-            String smdpAddress,
-            String activationCode,
-            String apn,
-            String dataUsage
+            String orderId
     ) {
         return OrderDetail.builder()
-                .activationDate(activationDate)
-                .expiryDate(expiryDate)
-                .iddicNumber(iddicNumber)
-                .smdpAddress(smdpAddress)
-                .activationCode(activationCode)
-                .apn(apn)
-                .dataUsage(dataUsage)
+                .productOrderId(productOrderId)
+                .orderId(orderId)
                 .build();
     }
 }

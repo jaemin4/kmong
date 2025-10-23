@@ -48,9 +48,10 @@ public class EmailConsumer {
                     Update.of(
                             command.getProductOrderId(),
                             null,
-                             SendStatus.SUCCESS,
                             null,
-                            null)
+                            SendStatus.SUCCESS,
+                            null
+                    )
             );
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
 
@@ -58,7 +59,12 @@ public class EmailConsumer {
             log.error("ERROR Send Mail : {}",e.getMessage());
             outBoxService.updateOrderOutBox(OutboxCommand.
                     Update.of(
-                            command.getProductOrderId(),null, SendStatus.FAIL,null,null)
+                            command.getProductOrderId(),
+                            null,
+                            null,
+                            SendStatus.FAIL,
+                            null
+                    )
             );
 
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);

@@ -31,6 +31,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import javax.print.DocFlavor;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -135,11 +137,13 @@ public class NaverApiScheduler {
                 continue;
             }
 
+            //todo 2.1 OrderEsim 호출 후 반환된 orderId 메인에 저장
+            String esimOrderId = "example any";
+
             try {
                 String orderDateStr = getS(mainRow, "content.order.orderDate");
                 LocalDateTime orderDate = LocalDateTime.parse(orderDateStr.substring(0, 19));
-
-                orderService.registerOrderMain(mapToRegisterOrderMain(mainRow));
+                orderService.registerOrderMain(mapToRegisterOrderMain(mainRow, esimOrderId));
                 saved++;
 
                 if (orderDate.isAfter(logicStartTime)) {
@@ -205,8 +209,7 @@ public class NaverApiScheduler {
         String email = "eheh25877@gmail.com";
         boolean enabledEmail = !email.equals("disableEmail");
 
-        // ====== ④ Outbox 등록 ======
-        outBoxService.registerOrderOutBox(OutboxCommand.RegisterOrderOutbox.of(
+/*        outBoxService.registerOrderOutBox(OutboxCommand.RegisterOrderOutbox.of(
                 productOrderId,
                 "testId",
                 isApiRequest ? SendStatus.SUCCESS : SendStatus.FAIL,
@@ -214,7 +217,7 @@ public class NaverApiScheduler {
                 email,
                 phone,
                 row
-        ));
+        ));*/
 
 
     }
@@ -235,7 +238,7 @@ public class NaverApiScheduler {
     }
 
     /** 주문정보 매핑 */
-    private OrderCommand.RegisterOrderMain mapToRegisterOrderMain(Map<String, Object> row) {
+    private OrderCommand.RegisterOrderMain mapToRegisterOrderMain(Map<String, Object> row,String esimOrderId) {
         Double price = getD(row, "content.productOrder.unitPrice");
         if (price == null) price = 0.0;
 
@@ -254,7 +257,8 @@ public class NaverApiScheduler {
                 getS(row, "content.productOrder.shippingMemo"),
                 firstNonEmpty(getS(row, "content.productOrder.productOrderStatus"),
                         getS(row, "content.productOrder.placeOrderStatus")),
-                "NOT_ISSUED"
+                "NOT_ISSUED",
+                esimOrderId
         );
     }
 

@@ -3,13 +3,13 @@ package com.kmong.domain.order;
 import com.github.pagehelper.PageInfo;
 import com.kmong.aop.log.AfterCommitLogger;
 import com.kmong.aop.log.RequestFlowLogger;
+import com.kmong.infra.order.EsimDetailJpaRepository;
 import com.kmong.support.utils.JsonUtils;
 import com.kmong.support.utils.PagingUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,6 +19,7 @@ public class OrderService {
 
     private final OrderMainRepository orderMainRepository;
     private final OrderDetailRepository orderDetailRepository;
+    private final EsimDetailJpaRepository esimDetailJpaRepository;
 
     @Transactional
     public void registerOrderMain(OrderCommand.RegisterOrderMain command) {
@@ -35,7 +36,8 @@ public class OrderService {
                 command.getCurrency(),
                 command.getMessage(),
                 command.getPaymentStatus(),
-                command.getIssueStatus()
+                command.getIssueStatus(),
+                command.getOrderId()
         );
 
         OrderMain saved = orderMainRepository.save(entity);
@@ -47,19 +49,38 @@ public class OrderService {
     @Transactional
     public void registerOrderDetail(OrderCommand.RegisterOrderDetail command){
         OrderDetail entity = OrderDetail.of(
-                command.getActivationDate(),
-                command.getExpiryDate(),
-                command.getIddicNumber(),
-                command.getSmdpAddress(),
-                command.getActivationCode(),
-                command.getApn(),
-                command.getDataUsage()
+                command.getOrderId()
         );
 
         OrderDetail saved = orderDetailRepository.save(entity);
 
         AfterCommitLogger.logInfoAfterCommit(() ->
                 String.format("[%s] saved OrderDetail: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(saved))
+        );
+    }
+
+    @Transactional
+    public void registerEsimDetail(OrderCommand.RegisterEsimDetail command) {
+        EsimDetail entity = EsimDetail.of(
+                command.getOrderId(),
+                command.getIccid(),
+                command.getProductName(),
+                command.getQrcode(),
+                command.getRcode(),
+                command.getQrcodeContent(),
+                command.getSalePlanDays(),
+                command.getPin1(),
+                command.getPin2(),
+                command.getPuk1(),
+                command.getPuk2(),
+                command.getCfCode(),
+                command.getApnExplain()
+        );
+
+        EsimDetail saved = esimDetailJpaRepository.save(entity);
+
+        AfterCommitLogger.logInfoAfterCommit(() ->
+                String.format("[%s] saved EsimDetail: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(saved))
         );
     }
 

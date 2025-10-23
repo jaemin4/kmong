@@ -19,7 +19,7 @@ public class SmsAuthConsumer {
     private final DefaultMessageService messageService;
 
     @RabbitListener(queues = com.kmong.support.constants.RabbitmqConstants.QUEUE_SMS_COOL, concurrency = "1")
-    public void sendVerificationCode(SmsConsumer.Issue command) {
+    public void sendVerificationCode(SmsConsumerCommand.Issue command) {
         try {
             log.info("[SMS Consumer] 메시지 수신: {}", JsonUtils.toJson(command));
 

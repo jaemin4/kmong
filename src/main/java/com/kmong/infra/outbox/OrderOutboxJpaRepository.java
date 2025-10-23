@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface OrderOutboxJpaRepository extends JpaRepository<OrderOutbox, Long> {
     Optional<OrderOutbox> findByProductOrderId(String productOrderId);
+
+    Optional<OrderOutbox> findByOrderId(String orderId);
 }

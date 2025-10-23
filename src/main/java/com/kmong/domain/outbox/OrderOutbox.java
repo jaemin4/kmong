@@ -17,9 +17,9 @@ public class OrderOutbox extends BaseTimeEntity {
     private Long id; // 시퀀스 PK
 
     @Column(nullable = false, length = 50, unique = true)
-    private String productOrderId; // 네이버 상품 주문번호
+    private String orderId;
 
-    @Column(length = 100)
+    @Column(nullable = false, length = 100)
     private String partnerApiName;
 
     @Enumerated(EnumType.STRING)
@@ -27,61 +27,44 @@ public class OrderOutbox extends BaseTimeEntity {
     private SendStatus partnerApiStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private SendStatus kakaoStatus;
 
-    @Column(nullable = false, length = 60)
+    @Column(length = 60)
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private SendStatus smsStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private SendStatus emailStatus;
 
     @Column(length = 100)
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private SendStatus naverOrderStatus;
 
-    /** Factory Method */
-    public static OrderOutbox disableMailOf(
-            String productOrderId,
-            String partnerApiName,
-            SendStatus partnerApiStatus,
-            String phoneNumber
-    ) {
-        return OrderOutbox.builder()
-                .productOrderId(productOrderId)
-                .partnerApiName(partnerApiName)
-                .partnerApiStatus(partnerApiStatus)
-                .kakaoStatus(SendStatus.PENDING)
-                .emailStatus(SendStatus.SKIP)
-                .naverOrderStatus(SendStatus.PENDING)
-                .smsStatus(SendStatus.PENDING)
-                .phoneNumber(phoneNumber)
-                .build();
-    }
+    public static OrderOutbox of(String orderId,String partnerApiName,String email,String phoneNumber, boolean isEnableEmail){
+        SendStatus emailStatus = SendStatus.PENDING;
+        SendStatus smsStatus = SendStatus.SKIP;
 
-    public static OrderOutbox enableMailOf(
-            String productOrderId,
-            String partnerApiName,
-            SendStatus partnerApiStatus,
-            String phoneNumber,
-            String email
-    ) {
+        if(!isEnableEmail){
+            emailStatus = SendStatus.SKIP;
+            smsStatus = SendStatus.PENDING;
+
+        }
         return OrderOutbox.builder()
-                .productOrderId(productOrderId)
+                .orderId(orderId)
                 .partnerApiName(partnerApiName)
-                .partnerApiStatus(partnerApiStatus)
+                .partnerApiStatus(SendStatus.PENDING)
                 .kakaoStatus(SendStatus.PENDING)
-                .emailStatus(SendStatus.PENDING)
-                .naverOrderStatus(SendStatus.PENDING)
-                .smsStatus(SendStatus.SKIP)
+                .emailStatus(emailStatus)
+                .naverOrderStatus(null)
+                .smsStatus(smsStatus)
                 .phoneNumber(phoneNumber)
                 .email(email)
                 .build();

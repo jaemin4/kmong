@@ -19,7 +19,7 @@ public class OrderOutBoxRepositoryImpl implements OrderOutboxRepository {
     }
 
     @Override
-    public Optional<OrderOutbox> findByProductOrderId(String productOrderId) {
-        return orderOutboxJpaRepository.findByProductOrderId(productOrderId);
+    public Optional<OrderOutbox> findByOrderId(String orderId) {
+        return orderOutboxJpaRepository.findByOrderId(orderId);
     }
 }

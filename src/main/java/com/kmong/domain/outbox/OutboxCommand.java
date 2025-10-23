@@ -1,5 +1,8 @@
 package com.kmong.domain.outbox;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,24 +13,20 @@ public class OutboxCommand {
     @Getter
     @AllArgsConstructor(staticName = "of")
     public static class RegisterOrderOutbox {
-        private String productOrderId;
+        private String orderId;
         private String partnerApiName;
-        private SendStatus partnerApiStatus;
-
-        private Boolean enableEmail;
         private String email;
         private String phoneNumber;
-        private Map<String, Object> row;
-
+        private boolean isEnableEmail;
     }
 
     @Getter
     @AllArgsConstructor(staticName = "of")
     public static class Update {
-        private String productOrderId;
+        private String orderId;
         private SendStatus kakaoStatus;
+        private SendStatus smsStatus;
         private SendStatus emailStatus;
         private SendStatus naverOrderStatus;
-        private SendStatus smsStatus;
     }
 }
