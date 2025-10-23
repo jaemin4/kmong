@@ -4,23 +4,35 @@
 <mapper namespace="com.kmong.infra.order.OrderMainMybatisRepository">
 
     <select id="findAllByKeyword"
-            parameterType="string"
+            parameterType="map"
             resultType="com.kmong.domain.order.OrderMain">
         SELECT *
         FROM esim_order_main
-        WHERE product_order_id   LIKE CONCAT('%', #{keyword}, '%')
-        OR order_date         LIKE CONCAT('%', #{keyword}, '%')
-        OR order_number       LIKE CONCAT('%', #{keyword}, '%')
-        OR orderer_name       LIKE CONCAT('%', #{keyword}, '%')
-        OR receiver_name      LIKE CONCAT('%', #{keyword}, '%')
-        OR purchase_channel   LIKE CONCAT('%', #{keyword}, '%')
-        OR product_option     LIKE CONCAT('%', #{keyword}, '%')
-        OR CAST(quantity AS CHAR)       LIKE CONCAT('%', #{keyword}, '%')
-        OR CAST(original_price AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
-        OR currency           LIKE CONCAT('%', #{keyword}, '%')
-        OR message            LIKE CONCAT('%', #{keyword}, '%')
-        OR payment_status     LIKE CONCAT('%', #{keyword}, '%')
-        OR issue_status       LIKE CONCAT('%', #{keyword}, '%')
+        WHERE 1 = 1
+        <if test="keyword != null and keyword != ''">
+            AND (
+            product_order_id   LIKE CONCAT('%', #{keyword}, '%')
+            OR order_date         LIKE CONCAT('%', #{keyword}, '%')
+            OR order_number       LIKE CONCAT('%', #{keyword}, '%')
+            OR orderer_name       LIKE CONCAT('%', #{keyword}, '%')
+            OR receiver_name      LIKE CONCAT('%', #{keyword}, '%')
+            OR purchase_channel   LIKE CONCAT('%', #{keyword}, '%')
+            OR product_option     LIKE CONCAT('%', #{keyword}, '%')
+            OR CAST(quantity AS CHAR)       LIKE CONCAT('%', #{keyword}, '%')
+            OR CAST(original_price AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+            OR currency           LIKE CONCAT('%', #{keyword}, '%')
+            OR message            LIKE CONCAT('%', #{keyword}, '%')
+            OR payment_status     LIKE CONCAT('%', #{keyword}, '%')
+            OR issue_status       LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+
+        <if test="start!= null and end != null">
+            AND order_date BETWEEN #{start} AND #{end}
+        </if>
+
+        ORDER BY order_date DESC
     </select>
+
 
 </mapper>

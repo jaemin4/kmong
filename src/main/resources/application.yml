@@ -67,6 +67,12 @@ spring:
     secret-key: adc66607219a4b913a2affd4750691ce9f48cf7821ee4579c37f362c095c523422b220d281483deba2804e5bcb4d20f305834675f3ee23bae9d6838eeae0f726l7p47l5t/LPXc1gLs9E3XMQJ023xSJ+yJOxDIk92+YmcveOXGFSrJpkzudse2yB8lxRrtJwhh5mdfjLYq4CjEQ==
     phone-number: 01058526740
 
+  esim:
+    merchant-id: b000070
+    token: a31f84cd66b7a898ae442b7d7799e29f
+    dept-id: 000086
+    enc-str: DFC7675F88A3B4C8AFAC012B8D92FB80D61D8C9A
+
   profiles:
     active: consumer
 
@@ -119,3 +125,4 @@ security:
     - /user/**
     - /notification/**
     - /order/**
+    - /api/esim/callback

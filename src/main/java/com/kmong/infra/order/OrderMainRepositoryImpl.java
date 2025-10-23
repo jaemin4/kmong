@@ -4,6 +4,8 @@ import com.kmong.domain.order.OrderMain;
 import com.kmong.domain.order.OrderMainRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
 import java.util.List;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -30,8 +32,8 @@ public class OrderMainRepositoryImpl implements OrderMainRepository {
     }
 
     @Override
-    public List<OrderMain> findAllByKeyword(String keyword) {
-        return orderMainMybatisRepository.findAllByKeyword(keyword);
+    public List<OrderMain> findAllByKeyword(String keyword, LocalDate start, LocalDate end) {
+        return orderMainMybatisRepository.findAllByKeyword(keyword, start, end);
     }
 
 

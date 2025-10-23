@@ -1,5 +1,6 @@
 package com.kmong.domain.order;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderMainRepository {
@@ -8,7 +9,7 @@ public interface OrderMainRepository {
 
     boolean existsByProductOrderId(String productOrderId);
 
-    List<OrderMain> findAllByKeyword(String keyword);
+    List<OrderMain> findAllByKeyword(String keyword, LocalDate start, LocalDate end);
 
     boolean existsMainByOrderId(String orderId);
 
