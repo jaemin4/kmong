@@ -20,13 +20,13 @@ public class EmailEventService {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendEmailWithOutboxStart(EmailEventCommand.SendEmail command) {
-        log.info("이메일 발행 : {}", command.getProductOrderId());
+        log.info("이메일 발행 : {}", command.getOrderId());
 
         rabbitTemplate.convertAndSend(
                 RabbitmqConstants.EXCHANGE_MAIL,
                 RabbitmqConstants.ROUTING_MAIL_SEND,
                 EmailConsumerCommand.Issue.of(
-                        command.getProductOrderId(),
+                        command.getOrderId(),
                         command.getEmail(),
                         command.getMailSubject(),
                         command.getMailBody(),

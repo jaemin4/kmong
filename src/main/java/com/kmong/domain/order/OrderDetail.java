@@ -23,7 +23,6 @@ public class OrderDetail extends BaseTimeEntity {
             String orderId
     ) {
         return OrderDetail.builder()
-                .productOrderId(productOrderId)
                 .orderId(orderId)
                 .build();
     }

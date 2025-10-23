@@ -24,7 +24,8 @@ public class SmsEventService {
                 RabbitmqConstants.ROUTING_SMS_SEND,
                 SmsConsumerCommand.Issue.of(
                         command.getPhoneNumber(),
-                        command.getSmsBody()
+                        command.getSmsBody(),
+                        command.getOrderId()
                 )
         );
 

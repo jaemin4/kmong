@@ -1,12 +1,8 @@
 package com.kmong.domain.outbox;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.util.Map;
 
 public class OutboxCommand {
 
@@ -15,6 +11,7 @@ public class OutboxCommand {
     public static class RegisterOrderOutbox {
         private String orderId;
         private String partnerApiName;
+        private SendStatus partnerApiStatus;
         private String email;
         private String phoneNumber;
         private boolean isEnableEmail;
@@ -28,5 +25,6 @@ public class OutboxCommand {
         private SendStatus smsStatus;
         private SendStatus emailStatus;
         private SendStatus naverOrderStatus;
+        private Boolean callBackSuccess;
     }
 }

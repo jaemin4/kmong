@@ -19,11 +19,12 @@ public class OutBoxService {
     public void registerOrderOutBox(OutboxCommand.RegisterOrderOutbox command) {
 
         OrderOutbox orderOutbox = OrderOutbox.of(
-            command.getOrderId(),
-            command.getPartnerApiName(),
-            command.getEmail(),
-            command.getPhoneNumber(),
-            command.isEnableEmail()
+                command.getOrderId(),
+                command.getPartnerApiName(),
+                command.getEmail(),
+                command.getPhoneNumber(),
+                command.isEnableEmail(),
+                command.getPartnerApiStatus()
         );
 
         OrderOutbox saved = orderOutboxRepository.save(orderOutbox);
@@ -44,7 +45,8 @@ public class OutBoxService {
                 command.getKakaoStatus(),
                 command.getEmailStatus(),
                 command.getNaverOrderStatus(),
-                command.getSmsStatus()
+                command.getSmsStatus(),
+                command.getCallBackSuccess()
         );
         OrderOutbox updated = orderOutboxRepository.save(orderOutbox);
 

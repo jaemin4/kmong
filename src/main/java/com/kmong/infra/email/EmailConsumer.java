@@ -50,6 +50,7 @@ public class EmailConsumer {
                             null,
                             null,
                             SendStatus.SUCCESS,
+                            null,
                             null
                     )
             );
@@ -63,6 +64,7 @@ public class EmailConsumer {
                             null,
                             null,
                             SendStatus.FAIL,
+                            null,
                             null
                     )
             );

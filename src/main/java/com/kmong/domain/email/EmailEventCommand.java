@@ -10,14 +10,9 @@ public class EmailEventCommand {
     @Getter
     @AllArgsConstructor(staticName = "of")
     public static class SendEmail{
-        private String productOrderId;
+        private String orderId;
         private String email;
         private String mailSubject;
         private String mailBody;
-        private boolean emailEnabled;
-        private boolean isApiRequest;
-        private String phoneNumber;
-        private String partnerApiName;
-
     }
 }

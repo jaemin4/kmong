@@ -12,5 +12,6 @@ public class SmsConsumerCommand {
     public static class Issue {
         private String phoneNumber;
         private String body;
+        private String orderId;
     }
 }

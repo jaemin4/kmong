@@ -48,7 +48,10 @@ public class OrderOutbox extends BaseTimeEntity {
     @Column(length = 20)
     private SendStatus naverOrderStatus;
 
-    public static OrderOutbox of(String orderId,String partnerApiName,String email,String phoneNumber, boolean isEnableEmail){
+    @Column
+    private Boolean callBackSuccess;
+
+    public static OrderOutbox of(String orderId,String partnerApiName,String email,String phoneNumber, boolean isEnableEmail, SendStatus partnerApiStatus){
         SendStatus emailStatus = SendStatus.PENDING;
         SendStatus smsStatus = SendStatus.SKIP;
 
@@ -60,13 +63,14 @@ public class OrderOutbox extends BaseTimeEntity {
         return OrderOutbox.builder()
                 .orderId(orderId)
                 .partnerApiName(partnerApiName)
-                .partnerApiStatus(SendStatus.PENDING)
+                .partnerApiStatus(partnerApiStatus)
                 .kakaoStatus(SendStatus.PENDING)
                 .emailStatus(emailStatus)
                 .naverOrderStatus(null)
                 .smsStatus(smsStatus)
                 .phoneNumber(phoneNumber)
                 .email(email)
+                .callBackSuccess(false)
                 .build();
     }
 
@@ -74,7 +78,8 @@ public class OrderOutbox extends BaseTimeEntity {
             SendStatus kakaoStatus,
             SendStatus emailStatus,
             SendStatus naverOrderStatus,
-            SendStatus smsStatus
+            SendStatus smsStatus,
+            Boolean callBackSuccess
     ) {
         if (kakaoStatus != null)     {
             this.kakaoStatus = kakaoStatus;
@@ -87,6 +92,9 @@ public class OrderOutbox extends BaseTimeEntity {
         }
         if (smsStatus != null)        {
             this.smsStatus = smsStatus;
+        }
+        if(callBackSuccess != null){
+            this.callBackSuccess = callBackSuccess;
         }
     }
 
