@@ -116,7 +116,7 @@ public class OrderOutBoxFacade {
         // todo 7. 알림 발행
         Notification notification = notificationService.get().getNotification();
 
-        if(orderOutbox.getEmailStatus().equals(SendStatus.PENDING)){
+        //if(orderOutbox.getEmailStatus().equals(SendStatus.PENDING)){
             eventPublisher.publishEvent(
                     EmailEventCommand.SendEmail.of(
                             orderId,
@@ -126,7 +126,7 @@ public class OrderOutBoxFacade {
                     )
             );
 
-        } else if(orderOutbox.getEmailStatus().equals(SendStatus.SKIP)){
+        //} else if(orderOutbox.getEmailStatus().equals(SendStatus.SKIP)){
             eventPublisher.publishEvent(
                     SmsEventCommand.Issue.of(
                             orderOutbox.getPhoneNumber(),
@@ -134,7 +134,7 @@ public class OrderOutBoxFacade {
                             orderId
                     )
             );
-        }
+       // }
 
 
 

@@ -1,5 +1,7 @@
 package com.kmong.interfaces.order;
 
+import com.kmong.application.OrderFacade;
+import com.kmong.application.OrderFacadeResult;
 import com.kmong.domain.order.EsimDetail;
 import com.kmong.domain.order.OrderMain;
 import com.kmong.domain.order.OrderResult;
@@ -26,6 +28,7 @@ import java.util.Map;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OrderFacade orderFacade;
 
     @PostMapping("/register")
     @Operation(summary = "주문 등록")
@@ -50,10 +53,9 @@ public class OrderController {
     }
 
     @GetMapping("/get/detail/{orderId}")
-    public APIResponse<List<EsimDetail>> getOrderDetail(@PathVariable String orderId)
+    public APIResponse<OrderFacadeResult.GetOrderDetail> getOrderDetail(@PathVariable String orderId)
     {
-
-        var data = orderService.getOrderDetail(orderId);
+        var data = orderFacade.getOrderDetail(orderId);
         return APIResponse.success(data);
     }
 
