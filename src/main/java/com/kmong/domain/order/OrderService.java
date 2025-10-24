@@ -18,7 +18,6 @@ import java.util.List;
 public class OrderService {
 
     private final OrderMainRepository orderMainRepository;
-    private final OrderDetailRepository orderDetailRepository;
     private final EsimDetailJpaRepository esimDetailJpaRepository;
 
     @Transactional
@@ -46,19 +45,6 @@ public class OrderService {
                 String.format("[%s] saved OrderMain: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(saved))
         );
     }
-    @Transactional
-    public void registerOrderDetail(OrderCommand.RegisterOrderDetail command){
-        OrderDetail entity = OrderDetail.of(
-                command.getOrderId()
-        );
-
-        OrderDetail saved = orderDetailRepository.save(entity);
-
-        AfterCommitLogger.logInfoAfterCommit(() ->
-                String.format("[%s] saved OrderDetail: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(saved))
-        );
-    }
-
     @Transactional
     public void registerEsimDetail(OrderCommand.RegisterEsimDetail command) {
         EsimDetail entity = EsimDetail.of(

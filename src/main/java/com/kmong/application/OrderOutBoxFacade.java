@@ -83,7 +83,7 @@ public class OrderOutBoxFacade {
         }
 
         // todo 5. 정상 처리 로직 (OrderDetail, eSIM Detail 저장)
-        orderService.registerOrderDetail(OrderCommand.RegisterOrderDetail.of(orderId));
+        //orderService.registerOrderDetail(OrderCommand.RegisterOrderDetail.of(orderId));
 
         for (Map<String, Object> map : itemList) {
             try {

@@ -27,13 +27,6 @@ public class OrderCommand {
 
     @Getter
     @AllArgsConstructor(staticName = "of")
-    public static class RegisterOrderDetail{
-        private final String orderId;
-    }
-
-
-    @Getter
-    @AllArgsConstructor(staticName = "of")
     public static class RegisterEsimDetail {
         private String orderId;         // 주문 ID
         private String iccid;           // eSIM ICCID 번호

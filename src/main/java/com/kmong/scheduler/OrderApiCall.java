@@ -75,8 +75,8 @@ public class OrderApiCall {
             String merchantId = "b000070";
             String deptId = "000086";
             String qrcodeType = "2";
-            String wmproductId = "WM_000003";
-            String qty = "3";
+            String wmproductId = "WM_000004";
+            String qty = "2";
             String token = "a31f84cd66b7a898ae442b7d7799e29f";
 
             String encStr = generateEncStr(merchantId, deptId, qrcodeType, wmproductId, qty, token);
