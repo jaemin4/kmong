@@ -8,7 +8,7 @@ import lombok.*;
  * eSIM 상세 정보 엔티티
  */
 @Entity
-@Table(name = "esim_order_detail")
+@Table(name = "esim_info_detail")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -19,18 +19,43 @@ public class EsimDetail extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 시퀀스 PK
 
+    @Column
     private String orderId;         // 주문 ID
+
+    @Column
     private String iccid;           // eSIM ICCID 번호
+
+    @Column
     private String productName;     // 상품명 (예: Japan, 1 Day, 1GB)
+
+    @Column
     private String qrcode;          // QR 코드 이미지 URL
+
+    @Column
     private String rcode;           // 리딤 코드
+
+    @Column
     private String qrcodeContent;   // LPA 주소 + 활성화 코드 포함
-    private int salePlanDays;       // 요금제 일수
+
+    @Column
+    private Integer salePlanDays;   // 요금제 일수 (nullable 허용)
+
+    @Column
     private String pin1;            // PIN1
+
+    @Column
     private String pin2;            // PIN2
+
+    @Column
     private String puk1;            // PUK1
+
+    @Column
     private String puk2;            // PUK2
+
+    @Column
     private String cfCode;          // 인증 코드
+
+    @Column
     private String apnExplain;      // APN 설명 (예: rsp.demo.com)
 
     public static EsimDetail of(
@@ -40,7 +65,7 @@ public class EsimDetail extends BaseTimeEntity {
             String qrcode,
             String rcode,
             String qrcodeContent,
-            int salePlanDays,
+            Integer salePlanDays,
             String pin1,
             String pin2,
             String puk1,

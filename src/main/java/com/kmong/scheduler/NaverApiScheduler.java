@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -30,26 +31,41 @@ public class NaverApiScheduler {
     private final OrderService orderService;
     private final NaverAPIClient naverAPIClient;
     private final OutBoxService outBoxService;
+
     private static final DateTimeFormatter NAVER_FMT =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                    .withZone(ZoneOffset.UTC);
 
     private ZonedDateTime lastFetchedTime;
     private String accessToken;
     private final OrderApiCall orderApiCall;
 
-    /** 초기화 (첫 실행 기준 시점 세팅 + 토큰 갱신) */
+ /*   *//** 초기화 (첫 실행 기준 시점 세팅 + 토큰 갱신) *//*
     @PostConstruct
     public void initBaseTime() {
-        lastFetchedTime = ZonedDateTime.of(2025, 8, 25, 0, 0, 0, 0, ZonedDateTime.now().getZone());
+        lastFetchedTime = ZonedDateTime.of(2025, 9, 4, 0, 0, 0, 0, ZoneOffset.UTC);
         refreshToken();
     }
 
-    /** 1분마다 실행 */
-    @Scheduled(cron = "0 * * * * *")
+    *//** 1분마다 실행 *//*
+    @Scheduled(cron = "1 * * * * *")
     public void orderSaveSchedule() {
         ZonedDateTime from = lastFetchedTime;
-        ZonedDateTime to = from.plusMonths(1); // 운영 시: plusMinutes(3)
+        ZonedDateTime to = from.plusDays(1); // 운영 시: plusMinutes(3)
         log.info("[NAVER] 주문 조회 시작: {} ~ {}", from, to);
+
+        runNaverOrderJob(from, to);
+        lastFetchedTime = to;
+    }*/
+
+    @PostConstruct
+    public void initBaseTime() {
+        lastFetchedTime = ZonedDateTime.of(2025, 9, 4, 0, 0, 0, 0, ZoneOffset.UTC);
+        refreshToken();
+
+        ZonedDateTime from = lastFetchedTime;
+        ZonedDateTime to = from.plusDays(1); // 실제 운영에서는 plusMinutes(3)
+        log.info("[TEST] 최초 1회 주문 조회 실행: {} ~ {}", from, to);
 
         runNaverOrderJob(from, to);
         lastFetchedTime = to;
@@ -58,7 +74,7 @@ public class NaverApiScheduler {
     private void runNaverOrderJob(ZonedDateTime from, ZonedDateTime to) {
         String f = NAVER_FMT.format(from);
         String t = NAVER_FMT.format(to);
-        LocalDateTime logicStartTime = LocalDateTime.of(2025, 8, 25, 0, 0, 0);
+        LocalDateTime logicStartTime = LocalDateTime.of(2025, 9, 4, 0, 0, 0);
 
         try {
             processOrders(f, t, logicStartTime);
@@ -113,7 +129,6 @@ public class NaverApiScheduler {
             try {
                 LocalDateTime orderDate = LocalDateTime.parse(getS(row, "content.order.orderDate").substring(0, 19));
 
-                // 이메일 및 전화번호 추출
                 String phone = Optional.ofNullable(getS(row, "content.order.ordererTel")).orElse("disablePhoneNumber");
                 String email = Optional.ofNullable(extractEmail(row)).orElse("disableEmail");
 
@@ -124,17 +139,25 @@ public class NaverApiScheduler {
                 String esimOrderId = null;
 
                 if (orderDate.isAfter(logicStartTime)) {
-                    Map<String, Object> payload = orderApiCall.callApiRedeem();
-                    esimOrderId = (String) Optional.ofNullable(payload.get("orderId")).orElse(null);
-                    if (esimOrderId == null) {
-                        log.warn("[WARN] 외부 eSIM API 실패 (orderId 미반환)");
+                    try {
+                        Thread.sleep(500);
+                        Map<String, Object> payload = orderApiCall.callApiRedeem();
+                        log.info("OrderData : {}", payload);
+
+                        esimOrderId = (String) Optional.ofNullable(payload.get("orderId")).orElse(null);
+
+                        if (esimOrderId == null) {
+                            log.warn("[WARN] 외부 eSIM API 실패 (orderId 미반환)");
+                            apiStatus = SendStatus.FAIL;
+                        }
+                    } catch (Exception apiEx) {
+                        log.error("[ERROR] eSIM API 호출 중 예외: {}", apiEx.getMessage(), apiEx);
                         apiStatus = SendStatus.FAIL;
                     }
                 }
 
-                // Outbox 기록
                 outBoxService.registerOrderOutBox(OutboxCommand.RegisterOrderOutbox.of(
-                        orderId,
+                        esimOrderId,
                         "/Api/SOrder/mybuyesimRedemption",
                         apiStatus,
                         email,
@@ -142,7 +165,6 @@ public class NaverApiScheduler {
                         true
                 ));
 
-                // Main 주문 저장
                 orderService.registerOrderMain(mapToRegisterOrderMain(row, esimOrderId));
                 saved++;
 
@@ -151,11 +173,9 @@ public class NaverApiScheduler {
                 skipped++;
             }
         }
-
-        log.info("[NAVER] 처리 완료 → saved={}, skipped={}", saved, skipped);
     }
 
-    @SuppressWarnings("unchecked")
+        @SuppressWarnings("unchecked")
     private Map<String, Object> mergeOrderGroup(List<Map<String, Object>> rows) {
         Map<String, Object> mainRow = rows.stream()
                 .filter(r -> "조합형옵션상품".equals(getS(r, "content.productOrder.productClass")))

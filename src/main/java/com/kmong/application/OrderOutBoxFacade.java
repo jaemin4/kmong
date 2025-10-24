@@ -8,7 +8,9 @@ import com.kmong.domain.order.OrderService;
 import com.kmong.domain.outbox.OrderOutbox;
 import com.kmong.domain.outbox.OutBoxService;
 import com.kmong.domain.outbox.OutboxCommand;
+import com.kmong.domain.outbox.SendStatus;
 import com.kmong.domain.sms.SmsEventCommand;
+import com.kmong.support.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,10 +35,9 @@ public class OrderOutBoxFacade {
      */
 
     @Transactional
-    public void processOfCallBack(Map<String,Object> payload) throws InterruptedException {
-        Thread.sleep(2000);
+    public void processOfCallBack(Map<String, Object> payload) throws InterruptedException {
+        Thread.sleep(3000); // 외부 시스템 지연 고려
 
-        // todo 0. orderValid
         String orderId = payload.get("orderId") != null ? payload.get("orderId").toString() : null;
         List<Map<String, Object>> itemList = (List<Map<String, Object>>) payload.get("itemList");
 
@@ -45,105 +46,100 @@ public class OrderOutBoxFacade {
             return;
         }
 
+        log.info("orderId={}", orderId);
+
+        // todo 1. Outbox 조회 (최초 시도)
         OrderOutbox orderOutbox = outBoxService.findByOrderId(orderId);
-        if(orderOutbox.getCallBackSuccess()){
-            return;
+        if (orderOutbox == null) {
+            log.warn("[OUTBOX] 최초 조회 실패 → orderId={}", orderId);
+        } else {
+            log.info("[OUTBOX] 최초 조회 성공 → {}", JsonUtils.toJson(orderOutbox));
         }
 
-        outBoxService.updateOrderOutBox(
-                OutboxCommand.Update.of(
-                        orderOutbox.getOrderId(),null,null,null,null,true
-                )
-        );
-        // todo 1. outBoxValid
+        // todo 2. 최대 5회까지 재시도
         int retryCount = 0;
-
         while (orderOutbox == null && retryCount < 5) {
+            Thread.sleep(1000); // 0.5초 대기
+            retryCount++;
             orderOutbox = outBoxService.findByOrderId(orderId);
             if (orderOutbox != null) {
-                log.info("[OUTBOX] 조회 성공 → orderId={}, attempt={}", orderId, retryCount + 1);
+                log.info("[OUTBOX] {}회차 재시도 성공 → {}", retryCount, orderId);
                 break;
-            }
-
-            retryCount++;
-            log.info("[OUTBOX] 데이터 미존재 → {}번째 재시도 (0.5초 대기)", retryCount);
-            try {
-                Thread.sleep(500); // 0.5초 대기
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.warn("[OUTBOX] 재시도 대기 중 인터럽트 발생");
-                break;
+            } else {
+                log.info("[OUTBOX] {}회차 재시도 실패", retryCount);
             }
         }
 
+        // todo 3. 5회 이후에도 null이면 종료
         if (orderOutbox == null) {
             log.error("[OUTBOX] 5회 재시도 후에도 데이터 조회 실패 → orderId={}", orderId);
             return;
         }
 
-        // todo 2. orderDetailRegister
+        // todo 4. 콜백 중복 처리 방지
+        if (Boolean.TRUE.equals(orderOutbox.getCallBackSuccess())) {
+            log.info("[CALLBACK] 이미 처리된 콜백입니다 → orderId={}", orderId);
+            return;
+        }
+
+        // todo 5. 정상 처리 로직 (OrderDetail, eSIM Detail 저장)
         orderService.registerOrderDetail(OrderCommand.RegisterOrderDetail.of(orderId));
 
         for (Map<String, Object> map : itemList) {
             try {
                 OrderCommand.RegisterEsimDetail command = OrderCommand.RegisterEsimDetail.of(
                         orderId,
-                        map.get("iccid") != null ? map.get("iccid").toString() : null,
-                        map.get("productName") != null ? map.get("productName").toString() : null,
-                        map.get("qrcode") != null ? map.get("qrcode").toString() : null,
-                        map.get("rcode") != null ? map.get("rcode").toString() : null,
-                        map.get("qrcodeContent") != null ? map.get("qrcodeContent").toString() : null,
+                        (String) map.get("iccid"),
+                        (String) map.get("productName"),
+                        (String) map.get("qrcode"),
+                        (String) map.get("rcode"),
+                        (String) map.get("qrcodeContent"),
                         map.get("salePlanDays") != null ? Integer.parseInt(map.get("salePlanDays").toString()) : 0,
-                        map.get("pin1") != null ? map.get("pin1").toString() : null,
-                        map.get("pin2") != null ? map.get("pin2").toString() : null,
-                        map.get("puk1") != null ? map.get("puk1").toString() : null,
-                        map.get("puk2") != null ? map.get("puk2").toString() : null,
-                        map.get("cfCode") != null ? map.get("cfCode").toString() : null,
-                        map.get("apnExplain") != null ? map.get("apnExplain").toString() : null
+                        (String) map.get("pin1"),
+                        (String) map.get("pin2"),
+                        (String) map.get("puk1"),
+                        (String) map.get("puk2"),
+                        (String) map.get("cfCode"),
+                        (String) map.get("apnExplain")
                 );
-
                 orderService.registerEsimDetail(command);
-
             } catch (Exception e) {
                 log.error("[CALLBACK] eSIM 상세 저장 중 오류 발생 (orderId={}): {}", orderId, e.getMessage(), e);
             }
         }
 
+        // todo  6. Outbox 상태 갱신
+        outBoxService.updateOrderOutBox(
+                OutboxCommand.Update.of(orderId, null, null, null, null, true)
+        );
+
+        // todo 7. 알림 발행
         Notification notification = notificationService.get().getNotification();
 
-       // todo 3. outBox 반영
-/*        outBoxService.updateOrderOutBox(
-                OutboxCommand.Update.of(
-                        orderId,
-                        SendStatus.PENDING,
-                        null,
-                        null,
-                        null,
-                        null
-                )
-        );*/
+        if(orderOutbox.getEmailStatus().equals(SendStatus.PENDING)){
+            eventPublisher.publishEvent(
+                    EmailEventCommand.SendEmail.of(
+                            orderId,
+                            orderOutbox.getEmail(),
+                            notification.getSubject(),
+                            notification.getContent()
+                    )
+            );
 
-       // todo 4. emailEvent(outBoxUpdate)
-        eventPublisher.publishEvent(
-                EmailEventCommand.SendEmail.of(
-                        orderId,orderOutbox.getEmail(),
-                        notification.getSubject(),
-                        notification.getContent()
-                )
-        );
-
-        // todo 5. smsEvent(outBoxUpdate)
-        eventPublisher.publishEvent(
-                SmsEventCommand.Issue.of(
-                        orderOutbox.getPhoneNumber(),
-                        notification.getContent(),
-                        orderId
-                )
-        );
-
-       // todo 6. kakaoEvent(outBoxUpdate)
+        } else if(orderOutbox.getEmailStatus().equals(SendStatus.SKIP)){
+            eventPublisher.publishEvent(
+                    SmsEventCommand.Issue.of(
+                            orderOutbox.getPhoneNumber(),
+                            notification.getContent(),
+                            orderId
+                    )
+            );
+        }
 
 
+
+        log.info("[CALLBACK] 처리 완료 → orderId={}", orderId);
     }
+
 
 }

@@ -105,4 +105,8 @@ public class OrderService {
     public boolean existsMainByOrderId(String orderId) {
         return orderMainRepository.existsMainByOrderId(orderId);
     }
+
+    public List<EsimDetail> getOrderDetail(String orderId) {
+        return esimDetailJpaRepository.findAllByOrderId(orderId);
+    }
 }

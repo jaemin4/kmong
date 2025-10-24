@@ -14,4 +14,9 @@ public class OrderResult {
         private List<OrderMain> orderMainList;
         private PagingUtil.PagingCommResult pagingCommResult;
     }
+
+    @Getter
+    @AllArgsConstructor(staticName = "of")
+    public static class GetOrderDetail {
+    }
 }

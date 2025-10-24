@@ -1,5 +1,6 @@
 package com.kmong.interfaces.order;
 
+import com.kmong.domain.order.EsimDetail;
 import com.kmong.domain.order.OrderMain;
 import com.kmong.domain.order.OrderResult;
 import com.kmong.domain.order.OrderService;
@@ -46,6 +47,14 @@ public class OrderController {
     ) {
         OrderResult.GetOrderMainPaging data = orderService.getOrderMainPaging(keyword,pageable,startDate,endDate);
         return APIPagingResponse.success("주문 등록에 성공하였습니다.",data.getOrderMainList(),data.getPagingCommResult());
+    }
+
+    @GetMapping("/get/detail/{orderId}")
+    public APIResponse<List<EsimDetail>> getOrderDetail(@PathVariable String orderId)
+    {
+
+        var data = orderService.getOrderDetail(orderId);
+        return APIResponse.success(data);
     }
 
 }

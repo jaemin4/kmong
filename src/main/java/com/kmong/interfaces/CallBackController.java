@@ -18,10 +18,10 @@ public class CallBackController {
 
     @PostMapping("/api/esim/callback")
     public String receiveCallback(@RequestBody Map<String,Object> payload) throws InterruptedException {
+        log.info("콜백 수신: {}", payload);
 
         orderOutBoxFacade.processOfCallBack(payload);
 
-        log.info("콜백 수신: {}", payload);
         return "1";
     }
 }

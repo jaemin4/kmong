@@ -41,7 +41,7 @@ public class OrderCommand {
         private String qrcode;          // QR 코드 이미지 URL
         private String rcode;           // 리딤 코드
         private String qrcodeContent;   // LPA 주소 + 활성화 코드 포함
-        private int salePlanDays;       // 요금제 일수
+        private Integer salePlanDays;       // 요금제 일수
         private String pin1;            // PIN1
         private String pin2;            // PIN2
         private String puk1;            // PUK1

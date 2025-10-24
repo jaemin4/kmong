@@ -1,5 +1,6 @@
 package com.kmong.scheduler;
 
+import com.kmong.config.UnsafeRestTemplateFactory;
 import com.kmong.support.properties.EsimProperties;
 import com.kmong.support.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.*;
 public class OrderApiCall {
 
     private final EsimProperties esimProperties;
-    private final RestTemplate restTemplate = new RestTemplate();
+    RestTemplate restTemplate = UnsafeRestTemplateFactory.createUnsafeRestTemplate();
     private final HttpHeaders httpHeaders = new HttpHeaders();
 
     public Map<String, Object> callApiCompany() {

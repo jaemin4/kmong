@@ -46,7 +46,7 @@ public class EmailConsumer {
 
             outBoxService.updateOrderOutBox(OutboxCommand.
                     Update.of(
-                            command.getProductOrderId(),
+                            command.getOrderId(),
                             null,
                             null,
                             SendStatus.SUCCESS,
@@ -60,7 +60,7 @@ public class EmailConsumer {
             log.error("ERROR Send Mail : {}",e.getMessage());
             outBoxService.updateOrderOutBox(OutboxCommand.
                     Update.of(
-                            command.getProductOrderId(),
+                            command.getOrderId(),
                             null,
                             null,
                             SendStatus.FAIL,
