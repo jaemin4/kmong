@@ -58,6 +58,12 @@ public class EsimDetail extends BaseTimeEntity {
     @Column
     private String apnExplain;      // APN 설명 (예: rsp.demo.com)
 
+    @Column
+    private Boolean isSuccess3_1;
+
+    @Column
+    private Boolean isSuccessCallBack3_2;
+
     public static EsimDetail of(
             String orderId,
             String iccid,
@@ -71,7 +77,9 @@ public class EsimDetail extends BaseTimeEntity {
             String puk1,
             String puk2,
             String cfCode,
-            String apnExplain
+            String apnExplain,
+            Boolean isSuccess3_1,
+            Boolean isSuccessCallBack3_2
     ) {
         return EsimDetail.builder()
                 .orderId(orderId)
@@ -87,6 +95,23 @@ public class EsimDetail extends BaseTimeEntity {
                 .puk2(puk2)
                 .cfCode(cfCode)
                 .apnExplain(apnExplain)
+                .isSuccess3_1(isSuccess3_1)
+                .isSuccessCallBack3_2(isSuccessCallBack3_2)
                 .build();
     }
+
+    public void update(OrderCommand.UpdateEsimDetail command) {
+        if (command.getQrcode() != null) this.qrcode = command.getQrcode();
+        if (command.getQrcodeContent() != null) this.qrcodeContent = command.getQrcodeContent();
+        if (command.getSalePlanDays() != null) this.salePlanDays = command.getSalePlanDays();
+        if (command.getPin1() != null) this.pin1 = command.getPin1();
+        if (command.getPin2() != null) this.pin2 = command.getPin2();
+        if (command.getPuk1() != null) this.puk1 = command.getPuk1();
+        if (command.getPuk2() != null) this.puk2 = command.getPuk2();
+        if (command.getCfCode() != null) this.cfCode = command.getCfCode();
+        if (command.getApnExplain() != null) this.apnExplain = command.getApnExplain();
+        if (command.getIsSuccess3_1() != null) this.isSuccess3_1 = command.getIsSuccess3_1();
+        if (command.getIsSuccessCallBack3_2() != null) this.isSuccessCallBack3_2 = command.getIsSuccessCallBack3_2();
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.kmong.domain.order;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.scheduling.support.SimpleTriggerContext;
@@ -41,5 +42,24 @@ public class OrderCommand {
         private String puk2;            // PUK2
         private String cfCode;          // 인증 코드
         private String apnExplain;      // APN 설명 (예: rsp.demo.com)
+        private Boolean isSuccess3_1;
+        private Boolean isSuccessCallBack3_2;
+    }
+
+    @Getter
+    @AllArgsConstructor(staticName = "of")
+    public static class UpdateEsimDetail {
+        private String rcode;
+        private String qrcode;
+        private String qrcodeContent;
+        private Integer salePlanDays;
+        private String pin1;
+        private String pin2;
+        private String puk1;
+        private String puk2;
+        private String cfCode;
+        private String apnExplain;
+        private Boolean isSuccess3_1;
+        private Boolean isSuccessCallBack3_2;
     }
 }

@@ -89,28 +89,111 @@ public class OrderApiCall {
                     "encStr", encStr
             );
 
-            log.info("[REQ eSIM] {}", JsonUtils.toJson(body));
+            log.info("[REQ eSIM] 2.4 {}", JsonUtils.toJson(body));
 
             ResponseEntity<Map> response = postJsonRequest(apiUrl, body);
             Map<String, Object> resBody = response.getBody();
-            log.info("[RES eSIM] {}", JsonUtils.toJson(resBody));
+            log.info("[RES eSIM] 2.4 {}", JsonUtils.toJson(resBody));
 
             result.put("body", resBody);
             result.put("orderId", resBody != null ? resBody.get("orderId") : null);
             result.put("isSuccess", resBody != null && Objects.equals(resBody.get("code"), 0));
 
         } catch (Exception e) {
-            log.error("[ERROR] eSIM API 호출 실패: {}", e.getMessage(), e);
+            log.error("[ERROR] eSIM API 2.4 호출 실패: {}", e.getMessage(), e);
             result.put("isSuccess", false);
         }
 
         return result;
     }
 
+    public Map<String,Object> callApiOrder2_1(){
+        String apiUrl = "https://tfmshippingsys.fastmove.com.tw/Api/SOrder/mybuyesim";
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            String merchantId = "b000070";
+            String deptId = "000086";
+            String email = "eheh258710@gmail.com";
+            String wmproductId = "WM_000001";
+            String qty = "2";
+            Boolean systemMail = false;
+            String token = "a31f84cd66b7a898ae442b7d7799e29f";
+
+            String encStr = generateEncStr(merchantId, deptId, email, wmproductId, qty, token);
+
+            Map<String, Object> body = Map.of(
+                    "merchantId", merchantId,
+                    "deptId", deptId,
+                    "email", email,
+                    "prodList", List.of(Map.of("wmproductId", wmproductId, "qty", Integer.parseInt(qty))),
+                    "systemMail",systemMail,
+                    "encStr", encStr
+            );
+
+            log.info("[REQ eSIM] {}", JsonUtils.toJson(body));
+
+            ResponseEntity<Map> response = postJsonRequest(apiUrl, body);
+            Map<String, Object> resBody = response.getBody();
+            log.info("[RES eSIM] 2.1 {}", JsonUtils.toJson(resBody));
+
+            result.put("body", resBody);
+            result.put("orderId", resBody != null ? resBody.get("orderId") : null);
+            result.put("isSuccess", resBody != null && Objects.equals(resBody.get("code"), 0));
+
+        } catch (Exception e) {
+            log.error("[ERROR] eSIM API  2.1 호출 실패: {}", e.getMessage(), e);
+            result.put("isSuccess", false);
+        }
+
+        return result;
+    }
+
+
+    public Boolean callApiOrder3_1(String rcode, String qrcodeType){
+        String apiUrl = "https://tfmshippingsys.fastmove.com.tw/Api/OrderRedemption/redemption";
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            String merchantId = "b000070";
+            String token = "a31f84cd66b7a898ae442b7d7799e29f";
+
+            String encStr = generateEncStr3_1(merchantId, rcode, qrcodeType, token);
+
+            Map<String, Object> body = Map.of(
+                    "merchantId", merchantId,
+                    "rcode", rcode,
+                    "qrcodeType", qrcodeType,
+                    "encStr", encStr
+            );
+
+            log.info("[REQ eSIM 3-1] {}", JsonUtils.toJson(body));
+
+            ResponseEntity<Map> response = postJsonRequest(apiUrl, body);
+            Map<String, Object> resBody = response.getBody();
+            log.info("[RES eSIM 3-1] {}", JsonUtils.toJson(resBody));
+
+
+            return true;
+
+        } catch (Exception e) {
+            log.error("[ERROR] eSIM API  3.1 호출 실패: {}", e.getMessage(), e);
+            return false;
+        }
+
+    }
+
+
     /** === SHA1 해시 계산 === */
     private String generateEncStr(String merchantId, String deptId, String qrcodeType,
                                   String wmproductId, String qty, String token) {
         String raw = merchantId + deptId + qrcodeType + wmproductId + qty + token;
+        return DigestUtils.sha1Hex(raw).toUpperCase();
+    }
+
+    /** === SHA1 해시 계산 === */
+    private String generateEncStr3_1(String merchantId, String rcode, String qrcodeType,String token) {
+        String raw = merchantId + rcode + qrcodeType + token;
         return DigestUtils.sha1Hex(raw).toUpperCase();
     }
 

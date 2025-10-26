@@ -20,41 +20,52 @@ public class OutBoxService {
 
         OrderOutbox orderOutbox = OrderOutbox.of(
                 command.getOrderId(),
-                command.getPartnerApiName(),
                 command.getEmail(),
                 command.getPhoneNumber(),
                 command.isEnableEmail(),
-                command.getPartnerApiStatus()
+                command.getOrdererName(),
+                command.getLesim(),
+                command.getIsCall2_1Success(),
+                command.getIsCallBack2_2Success(),
+                command.getIsCall3_1Success(),
+                command.getIsCallBack3_2Success(),
+                command.getIsCall2_4Success(),
+                command.getIsCallBack2_5Success()
         );
 
         OrderOutbox saved = orderOutboxRepository.save(orderOutbox);
 
         AfterCommitLogger.logInfoAfterCommit(() ->
-                String.format("[%s] saved orderOutbox: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(saved))
+                String.format("[%s] saved orderOutbox: %s",
+                        RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(saved))
         );
-
-
     }
 
+    /** 상태 업데이트 */
     @Transactional
-    public void updateOrderOutBox(OutboxCommand.Update command){
+    public void updateOrderOutBox(OutboxCommand.Update command) {
         OrderOutbox orderOutbox = orderOutboxRepository.findByOrderId(command.getOrderId())
-                .orElseThrow(() -> new RuntimeException("OrderOutbox not found"));
+                .orElseThrow(() -> new RuntimeException("OrderOutbox not found → orderId=" + command.getOrderId()));
 
         orderOutbox.update(
                 command.getKakaoStatus(),
                 command.getEmailStatus(),
                 command.getNaverOrderStatus(),
                 command.getSmsStatus(),
-                command.getCallBackSuccess()
+                command.getIsCall2_1Success(),
+                command.getIsCallBack2_2Success(),
+                command.getIsCall3_1Success(),
+                command.getIsCallBack3_2Success(),
+                command.getIsCall2_4Success(),
+                command.getIsCallBack2_5Success()
         );
+
         OrderOutbox updated = orderOutboxRepository.save(orderOutbox);
 
         AfterCommitLogger.logInfoAfterCommit(() ->
-                String.format("[%s] updated orderOutbox: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(updated))
+                String.format("[%s] updated orderOutbox: %s",
+                        RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(updated))
         );
-
-
     }
 
 

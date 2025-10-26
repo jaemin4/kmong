@@ -41,30 +41,20 @@ public class SmsAuthConsumer {
 
             log.info("[SMS 전송 성공]: {}", com.kmong.support.utils.JsonUtils.toJson(command));
 
-            outBoxService.updateOrderOutBox(OutboxCommand.
-                    Update.of(
-                            command.getOrderId(),
-                            null,
-                            SendStatus.SUCCESS,
-                            null,
-                            null,
-                            null
-                    )
+            outBoxService.updateOrderOutBox(
+                    OutboxCommand.Update.of
+                            (command.getOrderId(),null,SendStatus.SUCCESS,null,null,null,null,
+                                    null,null,null, null)
             );
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
 
         } catch (Exception e) {
             log.error("[SMS 전송 실패]: {}", e.getMessage());
 
-            outBoxService.updateOrderOutBox(OutboxCommand.
-                    Update.of(
-                            command.getOrderId(),
-                            null,
-                            SendStatus.FAIL,
-                            null,
-                            null,
-                            null
-                    )
+            outBoxService.updateOrderOutBox(
+                    OutboxCommand.Update.of
+                            (command.getOrderId(),null,SendStatus.FAIL,null,null,null,null,
+                                    null,null,null, null)
             );
 
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);

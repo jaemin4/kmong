@@ -117,7 +117,7 @@ public class NaverApiScheduler {
 
         int saved = 0, skipped = 0;
 
-        for (Map<String, Object> row : mergedOrders) {
+        for (Map<String, Object> row : mergedOrders.stream().limit(3).toList()) {
             String orderId = getS(row, "content.order.orderId");
             String productOrderId = getS(row, "content.productOrder.productOrderId");
 
@@ -126,6 +126,7 @@ public class NaverApiScheduler {
                 continue;
             }
 
+
             try {
                 LocalDateTime orderDate = LocalDateTime.parse(getS(row, "content.order.orderDate").substring(0, 19));
 
@@ -133,7 +134,8 @@ public class NaverApiScheduler {
                 String email = Optional.ofNullable(extractEmail(row)).orElse("disableEmail");
 
                 phone = "01046887175";
-                email = "eheh25877@gmail.com";
+                email = "eheh258710@gmail.com";
+                String ordererName = Optional.ofNullable(getS(row, "content.order.ordererName")).orElse("");
 
                 SendStatus apiStatus = SendStatus.SUCCESS;
                 String esimOrderId = null;
@@ -141,7 +143,8 @@ public class NaverApiScheduler {
                 if (orderDate.isAfter(logicStartTime)) {
                     try {
                         Thread.sleep(500);
-                        Map<String, Object> payload = orderApiCall.callApiRedeem();
+                        //Map<String, Object> payload = orderApiCall.callApiRedeem();
+                        Map<String,Object> payload = orderApiCall.callApiOrder2_1();
                         log.info("OrderData : {}", payload);
 
                         esimOrderId = (String) Optional.ofNullable(payload.get("orderId")).orElse(null);
@@ -158,11 +161,21 @@ public class NaverApiScheduler {
 
                 outBoxService.registerOrderOutBox(OutboxCommand.RegisterOrderOutbox.of(
                         esimOrderId,
-                        "/Api/SOrder/mybuyesimRedemption",
-                        apiStatus,
                         email,
                         phone,
-                        true
+                        true,
+                        ordererName,
+                        false,
+                        true,
+                        apiStatus,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
                 ));
 
                 orderService.registerOrderMain(mapToRegisterOrderMain(row, esimOrderId));

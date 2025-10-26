@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   application:
@@ -126,3 +126,5 @@ security:
     - /notification/**
     - /order/**
     - /api/esim/callback
+    - /api/esim/callback/second
+    - /api/esim/callback/**

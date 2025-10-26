@@ -60,7 +60,9 @@ public class OrderService {
                 command.getPuk1(),
                 command.getPuk2(),
                 command.getCfCode(),
-                command.getApnExplain()
+                command.getApnExplain(),
+                command.getIsSuccess3_1(),
+                command.getIsSuccessCallBack3_2()
         );
 
         EsimDetail saved = esimDetailJpaRepository.save(entity);
@@ -87,6 +89,19 @@ public class OrderService {
 
     }
 
+    @Transactional
+    public void updateEsimDetail(OrderCommand.UpdateEsimDetail command){
+        EsimDetail esimDetail = esimDetailJpaRepository.findByRcode(command.getRcode()).orElseThrow(
+                () -> new RuntimeException("esimDetail not found")
+        );
+        esimDetail.update(command);
+        EsimDetail updated = esimDetailJpaRepository.save(esimDetail);
+
+        AfterCommitLogger.logInfoAfterCommit(() ->
+                String.format("[%s] updated EsimDetail: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(updated))
+        );
+    }
+
 
     public boolean existsMainByOrderId(String orderId) {
         return orderMainRepository.existsMainByOrderId(orderId);
@@ -94,5 +109,9 @@ public class OrderService {
 
     public List<EsimDetail> getOrderDetail(String orderId) {
         return esimDetailJpaRepository.findAllByOrderId(orderId);
+    }
+
+    public EsimDetail getOrderDetailByRcode(String rcode) {
+        return esimDetailJpaRepository.findByRcode(rcode).orElse(null);
     }
 }
