@@ -10,7 +10,7 @@ public class EmailConsumerCommand {
     @AllArgsConstructor(staticName = "of")
     @Getter
     public static class Issue{
-        private String productOrderId;
+        private String orderId;
         private String email;
         private String subject;
         private String body;

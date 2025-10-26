@@ -53,6 +53,9 @@ public class OrderMain extends BaseTimeEntity {
     @Column(nullable = false, length = 30)
     private String issueStatus;      // 발급상태
 
+    @Column(nullable = false, length = 70)
+    private String orderId;
+
     /** 정적 팩토리 */
     public static OrderMain of(
             String productOrderId,
@@ -67,7 +70,8 @@ public class OrderMain extends BaseTimeEntity {
             String currency,
             String message,
             String paymentStatus,
-            String issueStatus
+            String issueStatus,
+            String orderId
     ) {
         return OrderMain.builder()
                 .productOrderId(productOrderId)
@@ -83,6 +87,7 @@ public class OrderMain extends BaseTimeEntity {
                 .message(message)
                 .paymentStatus(paymentStatus)
                 .issueStatus(issueStatus)
+                .orderId(orderId)
                 .build();
     }
 }

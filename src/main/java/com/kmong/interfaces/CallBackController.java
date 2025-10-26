@@ -1,6 +1,7 @@
 package com.kmong.interfaces;
 
-import com.kmong.support.response.APIResponse;
+import com.kmong.application.OrderOutBoxFacade;
+import com.kmong.support.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,12 +14,34 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CallBackController {
 
+    private final OrderOutBoxFacade orderOutBoxFacade;
+
 
     @PostMapping("/api/esim/callback")
-    public String receiveCallback(@RequestBody Map<String,Object> payload){
+    public String receiveCallback(@RequestBody Map<String,Object> payload) throws InterruptedException {
+        log.info("콜백 수신 2-5 : {}", payload);
 
+        orderOutBoxFacade.processCallBack2_5(payload);
 
-        log.info("콜백 수신: {}", payload);
         return "1";
     }
+
+    @PostMapping("/api/esim/callback/second")
+    public String receiveCallback2_2(@RequestBody Map<String,Object> payload) throws InterruptedException {
+        log.info("콜백 수신 2-2 : {}", JsonUtils.toJson(payload));
+
+       orderOutBoxFacade.processCallBack2_2(payload);
+
+        return "1";
+    }
+
+    @PostMapping("/api/esim/callback/3-2")
+    public String receiveCallback3_2(@RequestBody Map<String,Object> payload) throws InterruptedException {
+        log.info("콜백 수신 3-2 : {}", JsonUtils.toJson(payload));
+
+        orderOutBoxFacade.processCallBack3_2(payload);
+
+        return "1";
+    }
+
 }

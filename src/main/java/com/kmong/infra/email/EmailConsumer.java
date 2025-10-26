@@ -44,21 +44,19 @@ public class EmailConsumer {
 
             log.info("Email sent to : {}", JsonUtils.toJson(emailMessage));
 
-            outBoxService.updateOrderOutBox(OutboxCommand.
-                    Update.of(
-                            command.getProductOrderId(),
-                            null,
-                             SendStatus.SUCCESS,
-                            null,
-                            null)
+            outBoxService.updateOrderOutBox(
+                    OutboxCommand.Update.of
+                            (command.getOrderId(),null,null,SendStatus.SUCCESS,null,null,null,
+                                    null,null,null, null)
             );
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
 
         }catch (Exception e) {
             log.error("ERROR Send Mail : {}",e.getMessage());
-            outBoxService.updateOrderOutBox(OutboxCommand.
-                    Update.of(
-                            command.getProductOrderId(),null, SendStatus.FAIL,null,null)
+            outBoxService.updateOrderOutBox(
+                    OutboxCommand.Update.of
+                            (command.getOrderId(),null,null,SendStatus.FAIL,null,null,null,
+                                    null,null,null, null)
             );
 
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);

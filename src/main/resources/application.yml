@@ -126,3 +126,5 @@ security:
     - /notification/**
     - /order/**
     - /api/esim/callback
+    - /api/esim/callback/second
+    - /api/esim/callback/**

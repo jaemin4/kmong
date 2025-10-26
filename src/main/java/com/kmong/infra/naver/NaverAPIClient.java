@@ -82,6 +82,8 @@ public class NaverAPIClient {
             String response = readResponse(conn);
             conn.disconnect();
 
+            log.info("accessToken : {}", response);
+
             return new JSONObject(response).optString("access_token", null);
         } catch (Exception e) {
             log.error("NAVER getToken failed: {}", e.getMessage(), e);
