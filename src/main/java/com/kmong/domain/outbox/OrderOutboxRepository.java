@@ -7,4 +7,6 @@ public interface OrderOutboxRepository {
     OrderOutbox save(OrderOutbox orderOutbox);
 
     Optional<OrderOutbox> findByOrderId(String orderId);
+
+    void deleteByOrderId(String orderId);
 }

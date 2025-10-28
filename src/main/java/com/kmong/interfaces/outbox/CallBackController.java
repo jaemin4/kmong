@@ -1,9 +1,10 @@
-package com.kmong.interfaces;
+package com.kmong.interfaces.outbox;
 
 import com.kmong.application.OrderOutBoxFacade;
 import com.kmong.support.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,12 +37,15 @@ public class CallBackController {
     }
 
     @PostMapping("/api/esim/callback/3-2")
-    public String receiveCallback3_2(@RequestBody Map<String,Object> payload) throws InterruptedException {
+    public String receiveCallback3_2(
+            @RequestBody Map<String,Object> payload
+    ) throws InterruptedException {
         log.info("콜백 수신 3-2 : {}", JsonUtils.toJson(payload));
 
         orderOutBoxFacade.processCallBack3_2(payload);
 
         return "1";
     }
+
 
 }

@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -44,4 +46,8 @@ public class OrderMainRepositoryImpl implements OrderMainRepository {
                 .getSingleResult();
     }
 
+    @Override
+    public Optional<OrderMain> findByOrderId(String orderId) {
+        return orderMainJpaRepository.findByOrderId(orderId);
+    }
 }

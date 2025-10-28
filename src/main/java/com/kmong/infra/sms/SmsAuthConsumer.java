@@ -44,7 +44,7 @@ public class SmsAuthConsumer {
             outBoxService.updateOrderOutBox(
                     OutboxCommand.Update.of
                             (command.getOrderId(),null,SendStatus.SUCCESS,null,null,null,null,
-                                    null,null,null, null)
+                                    null,null,null, null, null)
             );
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
 
@@ -54,7 +54,7 @@ public class SmsAuthConsumer {
             outBoxService.updateOrderOutBox(
                     OutboxCommand.Update.of
                             (command.getOrderId(),null,SendStatus.FAIL,null,null,null,null,
-                                    null,null,null, null)
+                                    null,null,null, null,null)
             );
 
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);

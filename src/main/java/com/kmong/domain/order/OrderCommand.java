@@ -1,11 +1,17 @@
 package com.kmong.domain.order;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.scheduling.support.SimpleTriggerContext;
 
 public class OrderCommand {
+
+    @Getter
+    @AllArgsConstructor(staticName = "of")
+    public static class UpdateOrderMain{
+        private String orderId;
+        private String newOrderId;
+
+    }
 
     @Getter
     @AllArgsConstructor(staticName = "of")
@@ -24,6 +30,8 @@ public class OrderCommand {
         private final String paymentStatus;   // 결제상태
         private final String issueStatus;     // 발급상태
         private final String orderId;
+        private final String email;
+        private final String phone;
     }
 
     @Getter

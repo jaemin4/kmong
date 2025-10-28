@@ -47,7 +47,7 @@ public class EmailConsumer {
             outBoxService.updateOrderOutBox(
                     OutboxCommand.Update.of
                             (command.getOrderId(),null,null,SendStatus.SUCCESS,null,null,null,
-                                    null,null,null, null)
+                                    null,null,null, null,null)
             );
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
 
@@ -56,7 +56,7 @@ public class EmailConsumer {
             outBoxService.updateOrderOutBox(
                     OutboxCommand.Update.of
                             (command.getOrderId(),null,null,SendStatus.FAIL,null,null,null,
-                                    null,null,null, null)
+                                    null,null,null, null,null)
             );
 
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);

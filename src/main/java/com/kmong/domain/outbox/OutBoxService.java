@@ -57,7 +57,8 @@ public class OutBoxService {
                 command.getIsCall3_1Success(),
                 command.getIsCallBack3_2Success(),
                 command.getIsCall2_4Success(),
-                command.getIsCallBack2_5Success()
+                command.getIsCallBack2_5Success(),
+                null
         );
 
         OrderOutbox updated = orderOutboxRepository.save(orderOutbox);
@@ -72,4 +73,29 @@ public class OutBoxService {
     public OrderOutbox findByOrderId(String orderId) {
         return orderOutboxRepository.findByOrderId(orderId).orElse(null);
     }
+
+    @Transactional
+    public void deleteByOrderId(String orderId) {
+        orderOutboxRepository.deleteByOrderId(orderId);
+    }
+
+    @Transactional
+    public void updateOrderOutBox(OutboxCommand.UpdateOfFail command) {
+        OrderOutbox orderOutbox = orderOutboxRepository.findByOrderId(command.getOrderId())
+                .orElseThrow(() -> new RuntimeException("OrderOutbox not found → orderId=" + command.getOrderId()));
+
+        orderOutbox.update(
+                null,null,null,
+                null,null,
+                null,null,
+                null,null,
+                null,command.getIsFailed()
+        );
+
+        OrderOutbox updated = orderOutboxRepository.save(orderOutbox);
+
+        AfterCommitLogger.logInfoAfterCommit(() ->
+                String.format("[%s] updated orderOutbox: %s",
+                        RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(updated))
+        );    }
 }

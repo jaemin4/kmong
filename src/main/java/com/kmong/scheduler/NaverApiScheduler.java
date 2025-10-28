@@ -64,7 +64,7 @@ public class NaverApiScheduler {
         refreshToken();
 
         ZonedDateTime from = lastFetchedTime;
-        ZonedDateTime to = from.plusDays(1); // 실제 운영에서는 plusMinutes(3)
+        ZonedDateTime to = from.plusDays(10); // 실제 운영에서는 plusMinutes(3)
         log.info("[TEST] 최초 1회 주문 조회 실행: {} ~ {}", from, to);
 
         runNaverOrderJob(from, to);
@@ -117,7 +117,7 @@ public class NaverApiScheduler {
 
         int saved = 0, skipped = 0;
 
-        for (Map<String, Object> row : mergedOrders.stream().limit(3).toList()) {
+        for (Map<String, Object> row : mergedOrders.stream().limit(30).toList()) {
             String orderId = getS(row, "content.order.orderId");
             String productOrderId = getS(row, "content.productOrder.productOrderId");
 
@@ -137,7 +137,7 @@ public class NaverApiScheduler {
                 email = "eheh258710@gmail.com";
                 String ordererName = Optional.ofNullable(getS(row, "content.order.ordererName")).orElse("");
 
-                SendStatus apiStatus = SendStatus.SUCCESS;
+                Boolean apiStatus = true;
                 String esimOrderId = null;
 
                 if (orderDate.isAfter(logicStartTime)) {
@@ -151,11 +151,11 @@ public class NaverApiScheduler {
 
                         if (esimOrderId == null) {
                             log.warn("[WARN] 외부 eSIM API 실패 (orderId 미반환)");
-                            apiStatus = SendStatus.FAIL;
+                            apiStatus = false;
                         }
                     } catch (Exception apiEx) {
                         log.error("[ERROR] eSIM API 호출 중 예외: {}", apiEx.getMessage(), apiEx);
-                        apiStatus = SendStatus.FAIL;
+                        apiStatus = false;
                     }
                 }
 
@@ -166,8 +166,8 @@ public class NaverApiScheduler {
                         true,
                         ordererName,
                         false,
-                        true,
                         apiStatus,
+                        null,
                         null,
                         null,
                         null,
@@ -178,7 +178,7 @@ public class NaverApiScheduler {
                         null
                 ));
 
-                orderService.registerOrderMain(mapToRegisterOrderMain(row, esimOrderId));
+                orderService.registerOrderMain(mapToRegisterOrderMain(row, esimOrderId, email, phone));
                 saved++;
 
             } catch (Exception e) {

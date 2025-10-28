@@ -5,6 +5,7 @@ import com.kmong.domain.notification.Notification;
 import com.kmong.domain.notification.NotificationService;
 import com.kmong.domain.order.EsimDetail;
 import com.kmong.domain.order.OrderCommand;
+import com.kmong.domain.order.OrderMain;
 import com.kmong.domain.order.OrderService;
 import com.kmong.domain.outbox.OrderOutbox;
 import com.kmong.domain.outbox.OutBoxService;
@@ -12,6 +13,8 @@ import com.kmong.domain.outbox.OutboxCommand;
 import com.kmong.domain.outbox.SendStatus;
 import com.kmong.domain.sms.SmsEventCommand;
 import com.kmong.scheduler.OrderApiCall;
+import com.kmong.support.utils.JsonUtils;
+import com.kmong.support.valid.OrderOutBoxFacadeValid;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -98,7 +102,7 @@ public class OrderOutBoxFacade {
         outBoxService.updateOrderOutBox(
                 OutboxCommand.Update.of
                         (orderId,null,null,null,null,null,null,
-                                null,null,null,SendStatus.SUCCESS)
+                                null,null,null,SendStatus.SUCCESS,true)
         );
 
         // 4. 이메일 본문 생성
@@ -189,7 +193,7 @@ public class OrderOutBoxFacade {
         outBoxService.updateOrderOutBox(
                 OutboxCommand.Update.of
                         (orderId,null,null,null,null,null,null,
-                                null,null,null,SendStatus.SUCCESS
+                                null,null,null,SendStatus.SUCCESS,null
                         )
         );
 
@@ -277,11 +281,32 @@ public class OrderOutBoxFacade {
                     (String)payload.get("puk2"),
                     (String)payload.get("cfCode"),
                     (String)payload.get("apnExplain"),
-                    false,
+                    null,
                     true
             );
 
             orderService.updateEsimDetail(command);
+
+            // 5. 알림 발행 (이메일 + SMS)
+            Notification notification = notificationService.get().getNotification();
+            OrderOutbox orderOutbox = outBoxService.findByOrderId(esimDetail.getOrderId());
+
+            eventPublisher.publishEvent(
+                    EmailEventCommand.SendEmail.of(
+                            esimDetail.getOrderId(),
+                            orderOutbox.getEmail(),
+                            notification.getSubject(),
+                            "test"
+                    )
+            );
+
+/*            eventPublisher.publishEvent(
+                    SmsEventCommand.Issue.of(
+                            orderOutbox.getPhoneNumber(),
+                            "test",
+                            esimDetail.getOrderId()
+                    )
+            );*/
 
         }catch (Exception e){
             OrderCommand.UpdateEsimDetail command = OrderCommand.UpdateEsimDetail.of(
@@ -294,4 +319,89 @@ public class OrderOutBoxFacade {
             orderService.updateEsimDetail(command);
         }
     }
+    @Transactional(readOnly = true)
+    public void resendEmail(String orderId) {
+        // todo 템플릿 양식 가져오기
+        Notification notification = notificationService.get().getNotification();
+
+        // todo outbox 주문 가져오기
+        OrderOutbox orderOutbox = outBoxService.findByOrderId(orderId);
+
+        // todo outbox valid
+        OrderOutBoxFacadeValid.resendEmailValid(orderOutbox);
+
+        // todo 이메일 이벤트 발행
+        eventPublisher.publishEvent(
+                EmailEventCommand.SendEmail.of(
+                        orderId,orderOutbox.getEmail(),
+                        notification.getSubject(),notification.getContent()
+                )
+        );
+
+    }
+
+    @Transactional(readOnly = true)
+    public void resendSms(String orderId) {
+        OrderOutbox orderOutbox = outBoxService.findByOrderId(orderId);
+
+        OrderOutBoxFacadeValid.resendSmsValid(orderOutbox);
+
+        Notification notification = notificationService.get().getNotification();
+
+        eventPublisher.publishEvent(
+                SmsEventCommand.Issue.of(
+                        orderOutbox.getPhoneNumber(),
+                        notification.getContent(),
+                        orderId
+                )
+        );
+    }
+
+    public void resendOrderLocal(String orderId) throws InterruptedException {
+        OrderMain orderMain = orderService.findOrderMainByOrderId(orderId);
+
+        Map<String,Object> result = orderApiCall.callApiOrder2_1();
+        String esimOrderId = (String) result.get("orderId");
+
+        if(result.get("isSuccess").equals(false)){
+            throw new RuntimeException("2-1. 주문에 실패했습니다.");
+        }
+
+       log.info("OrderData : {}", JsonUtils.toJson(result));
+
+        orderService.updateOrderMain(
+                OrderCommand.UpdateOrderMain.of(
+                       orderId,esimOrderId
+                )
+        );
+
+        outBoxService.registerOrderOutBox(OutboxCommand.RegisterOrderOutbox.of(
+                esimOrderId,
+                orderMain.getEmail(),
+                orderMain.getPhone(),
+                true,
+                orderMain.getOrdererName(),
+                false,
+                true,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        ));
+
+
+        outBoxService.updateOrderOutBox(OutboxCommand.UpdateOfFail.of(
+                orderId,
+                false
+        ));
+
+        Thread.sleep(1000);
+    }
+
+
 }

@@ -2,6 +2,7 @@ package com.kmong.domain.order;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface OrderMainRepository {
 
@@ -13,4 +14,5 @@ public interface OrderMainRepository {
 
     boolean existsMainByOrderId(String orderId);
 
+    Optional<OrderMain> findByOrderId(String orderId);
 }

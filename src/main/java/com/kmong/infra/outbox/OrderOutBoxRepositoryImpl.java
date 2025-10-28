@@ -22,4 +22,9 @@ public class OrderOutBoxRepositoryImpl implements OrderOutboxRepository {
     public Optional<OrderOutbox> findByOrderId(String orderId) {
         return orderOutboxJpaRepository.findByOrderId(orderId);
     }
+
+    @Override
+    public void deleteByOrderId(String orderId) {
+        orderOutboxJpaRepository.deleteByOrderId(orderId);
+    }
 }

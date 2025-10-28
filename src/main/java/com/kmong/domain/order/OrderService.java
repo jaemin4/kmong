@@ -8,6 +8,7 @@ import com.kmong.support.utils.JsonUtils;
 import com.kmong.support.utils.PagingUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.core.support.RepositoryMethodInvocationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ public class OrderService {
 
     private final OrderMainRepository orderMainRepository;
     private final EsimDetailJpaRepository esimDetailJpaRepository;
+    private final RepositoryMethodInvocationListener repositoryMethodInvocationListener;
 
     @Transactional
     public void registerOrderMain(OrderCommand.RegisterOrderMain command) {
@@ -36,7 +38,9 @@ public class OrderService {
                 command.getMessage(),
                 command.getPaymentStatus(),
                 command.getIssueStatus(),
-                command.getOrderId()
+                command.getOrderId(),
+                command.getEmail(),
+                command.getPhone()
         );
 
         OrderMain saved = orderMainRepository.save(entity);
@@ -113,5 +117,26 @@ public class OrderService {
 
     public EsimDetail getOrderDetailByRcode(String rcode) {
         return esimDetailJpaRepository.findByRcode(rcode).orElse(null);
+    }
+
+    public OrderMain findOrderMainByOrderId(String orderId) {
+        OrderMain orderMain = orderMainRepository.findByOrderId(orderId).orElseThrow(
+                () -> new RuntimeException("orderMain not found")
+        );
+        return orderMain;
+    }
+
+    @Transactional
+    public void updateOrderMain(OrderCommand.UpdateOrderMain command) {
+        OrderMain orderMain = orderMainRepository.findByOrderId(command.getOrderId()).orElseThrow(
+                () -> new RuntimeException("orderMain not found")
+        );
+        orderMain.update(command.getNewOrderId());
+
+        OrderMain updated = orderMainRepository.save(orderMain);
+
+        AfterCommitLogger.logInfoAfterCommit(() ->
+                String.format("[%s] updated OrderMain: %s", RequestFlowLogger.getCurrentUUID(), JsonUtils.toJson(updated))
+        );
     }
 }

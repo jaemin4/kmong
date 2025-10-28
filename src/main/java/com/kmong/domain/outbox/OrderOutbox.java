@@ -60,6 +60,8 @@ public class OrderOutbox extends BaseTimeEntity {
 
     private String ordererName;
 
+    private Boolean isFailed;
+
     public static OrderOutbox of(
             String orderId,
             String email,
@@ -112,7 +114,8 @@ public class OrderOutbox extends BaseTimeEntity {
             Boolean isCall3_1Success,
             SendStatus isCallBack3_2Success,
             Boolean isCall2_4Success,
-            SendStatus isCallBack2_5Success
+            SendStatus isCallBack2_5Success,
+            Boolean isFailed
     ) {
         if (kakaoStatus != null) this.kakaoStatus = kakaoStatus;
         if (emailStatus != null) this.emailStatus = emailStatus;
@@ -124,5 +127,6 @@ public class OrderOutbox extends BaseTimeEntity {
         if (isCallBack3_2Success != null) this.isCallBack3_2Success = isCallBack3_2Success;
         if (isCall2_4Success != null) this.isCall2_4Success = isCall2_4Success;
         if (isCallBack2_5Success != null) this.isCallBack2_5Success = isCallBack2_5Success;
+        if(isFailed != null) this.isFailed = isFailed;
     }
 }

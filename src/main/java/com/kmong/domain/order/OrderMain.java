@@ -56,6 +56,13 @@ public class OrderMain extends BaseTimeEntity {
     @Column(nullable = false, length = 70)
     private String orderId;
 
+    @Column(length = 255)
+    private String email;
+
+    @Column(length = 255)
+    private String phone;
+
+
     /** 정적 팩토리 */
     public static OrderMain of(
             String productOrderId,
@@ -71,7 +78,9 @@ public class OrderMain extends BaseTimeEntity {
             String message,
             String paymentStatus,
             String issueStatus,
-            String orderId
+            String orderId,
+            String email,
+            String phone
     ) {
         return OrderMain.builder()
                 .productOrderId(productOrderId)
@@ -88,6 +97,14 @@ public class OrderMain extends BaseTimeEntity {
                 .paymentStatus(paymentStatus)
                 .issueStatus(issueStatus)
                 .orderId(orderId)
+                .email(email)
+                .phone(phone)
                 .build();
+    }
+
+    public void update(String orderId){
+        if(orderId != null){
+            this.orderId = orderId;
+        }
     }
 }

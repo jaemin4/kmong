@@ -16,7 +16,7 @@ import static com.kmong.support.utils.JsonPathUtils.getS;
 @Slf4j
 public class OrderUtils {
     /** 주문정보 매핑 */
-    public static OrderCommand.RegisterOrderMain mapToRegisterOrderMain(Map<String, Object> row, String esimOrderId) {
+    public static OrderCommand.RegisterOrderMain mapToRegisterOrderMain(Map<String, Object> row, String esimOrderId, String email, String phone) {
         Double price = getD(row, "content.productOrder.unitPrice");
         if (price == null) price = 0.0;
 
@@ -36,7 +36,9 @@ public class OrderUtils {
                 firstNonEmpty(getS(row, "content.productOrder.productOrderStatus"),
                         getS(row, "content.productOrder.placeOrderStatus")),
                 "NOT_ISSUED",
-                esimOrderId
+                esimOrderId,
+                email,
+                phone
         );
     }
 

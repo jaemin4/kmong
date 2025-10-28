@@ -7,6 +7,13 @@ public class OutboxCommand {
 
     @Getter
     @AllArgsConstructor(staticName = "of")
+    public static  class UpdateOfFail{
+        private String orderId;
+        private Boolean isFailed;
+    }
+
+    @Getter
+    @AllArgsConstructor(staticName = "of")
     public static class RegisterOrderOutbox {
         private String orderId;
         private String email;
@@ -49,5 +56,7 @@ public class OutboxCommand {
         private SendStatus isCallBack3_2Success;
         private Boolean isCall2_4Success;
         private SendStatus isCallBack2_5Success;
+
+        private Boolean lesim;
     }
 }

@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface OrderOutboxJpaRepository extends JpaRepository<OrderOutbox, Long> {
 
     Optional<OrderOutbox> findByOrderId(String orderId);
+
+    void deleteByOrderId(String orderId);
 }
